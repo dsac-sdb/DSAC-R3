@@ -1,0 +1,2951 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>catalogueMct</title>
+<script src="https://grist.numerique.gouv.fr/grist-plugin-api.js"></script>
+</head>
+<body>
+<style id="r3-design-tokens">
+  :root {
+    --r3-font: Marianne, "Segoe UI", system-ui, -apple-system, sans-serif;
+    --r3-text: var(--grist-theme-text, #14243a);
+    --r3-text-muted: var(--grist-theme-text-light, #5c6b7d);
+    --r3-border: var(--grist-theme-border, #c8d2df);
+    --r3-surface: var(--grist-theme-page-panels-main-panel-bg, #ffffff);
+    --r3-surface-soft: var(--grist-theme-bg-light, #f2f5f9);
+    --r3-surface-hover: var(--grist-theme-hover, #e8eef6);
+    --r3-primary: var(--grist-theme-control-primary-bg, #0f468c);
+    --r3-primary-text: var(--grist-theme-control-primary-fg, #ffffff);
+    --r3-accent: #f24b0f;
+    --r3-danger: var(--grist-theme-error-text, #b40000);
+    --r3-focus: var(--grist-theme-control-primary-bg, #0f468c);
+    --r3-space-1: 4px;
+    --r3-space-2: 8px;
+    --r3-space-3: 12px;
+    --r3-space-4: 16px;
+    --r3-space-6: 24px;
+    --r3-radius-sm: 4px;
+    --r3-radius: 6px;
+    --r3-radius-lg: 8px;
+    color-scheme: light dark;
+  }
+
+  :root[data-grist-appearance="light"] { color-scheme: light; }
+  :root[data-grist-appearance="dark"] { color-scheme: dark; }
+  :root[data-grist-theme="HighContrastLight"] {
+    --r3-border: #000000;
+    --r3-focus: #000000;
+    --r3-surface-hover: #e5e5e5;
+  }
+</style>
+
+<a class="r3-skip-link" href="#r3-main">Aller au contenu principal</a>
+<header id="r3-app-nav" class="r3-app-header">
+  <span class="r3-app-brand" aria-label="Application DSAC R3">
+    <span class="r3-app-logo" aria-hidden="true">DSAC</span>
+    <span class="r3-app-brand-label">R3</span>
+  </span>
+  <nav class="r3-nav" aria-label="Navigation principale">
+    <details id="r3-nav-details" class="r3-nav-details">
+      <summary class="r3-nav-summary" aria-label="Menu de navigation">
+        <span id="r3-nav-current-emoji" class="r3-nav-emoji" aria-hidden="true">🧭</span>
+        <span id="r3-nav-current" class="r3-nav-current">Navigation</span>
+        <span class="r3-nav-caret" aria-hidden="true">▾</span>
+      </summary>
+      <div id="r3-nav-list" class="r3-nav-list"></div>
+    </details>
+  </nav>
+  <div class="r3-app-actions">
+  <div id="r3-bell" class="r3-bell" hidden>
+    <button id="r3-bell-button" class="r3-bell-button" type="button"
+      aria-haspopup="true" aria-expanded="false" aria-label="Notifications">
+      <span aria-hidden="true">🔔</span>
+      <span id="r3-bell-count" class="r3-bell-count" hidden></span>
+    </button>
+    <div id="r3-bell-panel" class="r3-bell-panel" role="dialog" aria-label="Dernières notifications" hidden>
+      <ol id="r3-bell-list" class="r3-bell-list"></ol>
+      <p id="r3-bell-empty" class="r3-bell-empty" hidden>Aucune notification.</p>
+      <a id="r3-bell-page" class="r3-bell-page" target="_top">Toutes les notifications</a>
+    </div>
+  </div>
+  <a id="r3-open-grist" class="r3-open-grist" target="_top" hidden>
+    <span aria-hidden="true">↗</span><span class="r3-open-grist-label">Ouvrir dans Grist</span>
+  </a>
+  </div>
+  <p id="r3-nav-diagnostic" class="r3-nav-diagnostic" role="status" hidden></p>
+</header>
+<p id="r3-capability-notice" class="r3-capability-notice" role="alert" hidden></p>
+
+<style id="r3-app-shell-style">
+  .r3-visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+  }
+  .r3-skip-link {
+    position: fixed;
+    z-index: 10020;
+    top: 8px;
+    left: 8px;
+    translate: 0 -160%;
+    padding: 8px 12px;
+    border: 2px solid var(--r3-focus);
+    border-radius: var(--r3-radius);
+    background: var(--r3-surface);
+    color: var(--r3-text);
+    font: 600 14px/20px var(--r3-font);
+  }
+  .r3-skip-link:focus { translate: 0; }
+  .r3-app-header {
+    position: fixed;
+    z-index: 10000;
+    inset: 0 0 auto;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+    height: 64px;
+    padding: 8px max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left));
+    border-bottom: 1px solid var(--r3-border);
+    background: var(--r3-surface);
+    color: var(--r3-text);
+    font: 14px/20px var(--r3-font);
+    box-shadow: 0 1px 4px rgb(0 0 0 / .08);
+  }
+  .r3-app-brand {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    min-width: 0;
+    font-weight: 800;
+  }
+  .r3-app-logo {
+    display: grid;
+    width: 44px;
+    height: 40px;
+    place-items: center;
+    border-radius: var(--r3-radius);
+    background: linear-gradient(135deg, #164194 0 68%, #ea5b0c 68% 100%);
+    color: #ffffff;
+    font-size: 10px;
+    letter-spacing: .05em;
+  }
+  .r3-app-brand-label { font-size: 16px; }
+  .r3-nav { justify-self: start; min-width: 0; }
+  .r3-nav-details { position: relative; }
+  .r3-nav-summary {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 6px 12px;
+    border-radius: var(--r3-radius);
+    font-weight: 600;
+    white-space: nowrap;
+    list-style: none;
+    cursor: pointer;
+  }
+  .r3-nav-summary::-webkit-details-marker { display: none; }
+  .r3-nav-summary:hover { background: var(--r3-surface-hover); }
+  .r3-nav-details[open] .r3-nav-summary { background: var(--r3-surface-hover); }
+  .r3-nav-summary:focus-visible { outline: 3px solid var(--r3-focus); outline-offset: 1px; }
+  .r3-nav-caret { flex: 0 0 auto; font-size: 11px; color: var(--r3-text-muted); }
+  .r3-nav-details[open] .r3-nav-caret { rotate: 180deg; }
+  .r3-nav-list {
+    position: absolute;
+    z-index: 10015;
+    top: calc(100% + 6px);
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: max-content;
+    max-width: min(320px, calc(100vw - 24px));
+    padding: 6px;
+    border: 1px solid var(--r3-border);
+    border-radius: var(--r3-radius-lg);
+    background: var(--r3-surface);
+    box-shadow: 0 6px 24px rgb(0 0 0 / .16);
+  }
+  .r3-nav-list .r3-nav-link { justify-content: flex-start; width: 100%; }
+  .r3-app-actions { display: flex; gap: 4px; align-items: center; justify-self: end; }
+  .r3-nav-link,
+  .r3-open-grist {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 40px;
+    padding: 6px 10px;
+    border-radius: var(--r3-radius);
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .r3-nav-link:hover,
+  .r3-open-grist:hover { background: var(--r3-surface-hover); }
+  .r3-nav-link:focus-visible,
+  .r3-open-grist:focus-visible {
+    outline: 3px solid var(--r3-focus);
+    outline-offset: 1px;
+  }
+  .r3-nav-link[aria-current="page"] {
+    background: var(--r3-surface-hover);
+    box-shadow: inset 0 -3px var(--r3-primary);
+    font-weight: 700;
+  }
+  .r3-nav-emoji { flex: 0 0 auto; font-size: 17px; }
+  .r3-nav-label { overflow: hidden; text-overflow: ellipsis; }
+  .r3-open-grist { font-size: 13px; }
+  .r3-bell { position: relative; }
+  .r3-bell-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 6px;
+    border: 0;
+    border-radius: var(--r3-radius);
+    background: transparent;
+    color: inherit;
+    font-size: 17px;
+    cursor: pointer;
+  }
+  .r3-bell-button:hover { background: var(--r3-surface-hover); }
+  .r3-bell-button:focus-visible {
+    outline: 3px solid var(--r3-focus);
+    outline-offset: 1px;
+  }
+  .r3-bell-count {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    min-width: 17px;
+    padding: 1px 4px;
+    border-radius: 999px;
+    background: var(--r3-accent);
+    color: #ffffff;
+    font: 700 11px/15px var(--r3-font);
+    text-align: center;
+  }
+  .r3-bell-panel {
+    position: absolute;
+    z-index: 10015;
+    top: calc(100% + 6px);
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    width: min(360px, calc(100vw - 24px));
+    max-height: min(70vh, 480px);
+    padding: 6px;
+    border: 1px solid var(--r3-border);
+    border-radius: var(--r3-radius-lg);
+    background: var(--r3-surface);
+    box-shadow: 0 6px 24px rgb(0 0 0 / .16);
+  }
+  .r3-bell-list {
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .r3-bell-item {
+    display: grid;
+    gap: 2px;
+    padding: 8px;
+    border-radius: var(--r3-radius);
+  }
+  .r3-bell-item + .r3-bell-item { border-top: 1px solid var(--r3-border); }
+  .r3-bell-item[data-statut="Non lue"] { background: var(--r3-surface-soft); }
+  .r3-bell-item-lien {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .r3-bell-item-lien:hover { text-decoration: underline; }
+  .r3-bell-item-resume {
+    overflow: hidden;
+    max-height: 40px;
+    color: var(--r3-text-muted);
+    font-size: 12px;
+    white-space: pre-line;
+  }
+  .r3-bell-item-actions { display: flex; gap: 8px; }
+  .r3-bell-item-actions button {
+    padding: 2px 6px;
+    border: 1px solid var(--r3-border);
+    border-radius: var(--r3-radius-sm);
+    background: var(--r3-surface);
+    color: inherit;
+    font: 12px/16px var(--r3-font);
+    cursor: pointer;
+  }
+  .r3-bell-item-actions button:hover { background: var(--r3-surface-hover); }
+  .r3-bell-empty { margin: 8px; color: var(--r3-text-muted); }
+  .r3-bell-page {
+    padding: 8px;
+    border-top: 1px solid var(--r3-border);
+    color: var(--r3-primary);
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+  }
+  .r3-bell-page:hover { text-decoration: underline; }
+  .r3-nav-diagnostic {
+    position: fixed;
+    z-index: 10010;
+    top: 70px;
+    right: 12px;
+    max-width: min(420px, calc(100vw - 24px));
+    margin: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--r3-danger);
+    border-radius: var(--r3-radius);
+    background: var(--r3-surface);
+    color: var(--r3-danger);
+    font-size: 12px;
+  }
+  .r3-capability-notice {
+    position: relative;
+    z-index: 2;
+    margin: 12px 12px 0;
+    padding: 10px 12px;
+    border: 1px solid var(--r3-border);
+    border-left: 4px solid var(--r3-accent);
+    border-radius: var(--r3-radius);
+    background: var(--r3-surface);
+    color: var(--r3-text);
+    font: 14px/20px var(--r3-font);
+  }
+
+  body.r3-shell-ready {
+    min-width: 0 !important;
+    padding-top: 64px;
+    background: var(--r3-surface-soft) !important;
+    color: var(--r3-text) !important;
+    font: 14px/20px var(--r3-font);
+  }
+  body.r3-shell-ready > main { min-width: 0; }
+  body.r3-shell-ready .hero {
+    min-height: 56px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 16px;
+    border: 1px solid var(--r3-border);
+    border-bottom: 1px solid var(--r3-border);
+    border-radius: var(--r3-radius-lg);
+    background: var(--r3-surface);
+    color: var(--r3-text);
+    box-shadow: none;
+  }
+  body.r3-shell-ready .hero::after,
+  body.r3-shell-ready .hero-logo { display: none !important; }
+  body.r3-shell-ready .hero-brand { gap: 8px; min-width: 0; }
+  body.r3-shell-ready .r3-page-emoji {
+    display: grid;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border-radius: var(--r3-radius);
+    background: var(--r3-surface-hover);
+    font-size: 18px;
+  }
+  body.r3-shell-ready .prefs-shell .hero {
+    grid-template-columns: 32px minmax(0, 1fr);
+    column-gap: 8px;
+  }
+  body.r3-shell-ready .prefs-shell .r3-page-emoji { grid-row: 1 / 4; }
+  body.r3-shell-ready .prefs-shell .hero > :not(.r3-page-emoji) { grid-column: 2; }
+  body.r3-shell-ready .hero-copy h1 { margin: 0; font-size: clamp(22px, 2vw, 24px); line-height: 28px; }
+  body.r3-shell-ready .hero p { display: none; }
+  body.r3-shell-ready .hero .eyebrow { color: var(--r3-text-muted); font-size: 10px; }
+  body.r3-shell-ready .hero-metrics { gap: 4px; }
+  body.r3-shell-ready .hero-metrics article { min-width: 72px; padding: 4px 8px; border: 0; background: transparent; }
+  body.r3-shell-ready .hero-metrics span { color: var(--r3-text-muted); }
+  body.r3-shell-ready .hero-metrics strong { color: var(--r3-text); font-size: 18px; font-variant-numeric: tabular-nums; }
+  body.r3-shell-ready .hero-metrics .metric-warning strong { color: var(--r3-primary); }
+  body.r3-shell-ready .hero-metrics .metric-danger strong { color: var(--r3-danger); }
+  body.r3-shell-ready .panel,
+  body.r3-shell-ready .filters-panel,
+  body.r3-shell-ready .action-item,
+  body.r3-shell-ready .subaction-card,
+  body.r3-shell-ready dialog {
+    border-color: var(--r3-border);
+    border-radius: var(--r3-radius-lg);
+    background-color: var(--r3-surface);
+    color: var(--r3-text);
+    box-shadow: none;
+  }
+  body.r3-shell-ready input,
+  body.r3-shell-ready select,
+  body.r3-shell-ready textarea {
+    border-color: var(--r3-border);
+    background-color: var(--r3-surface);
+    color: var(--r3-text);
+  }
+  body.r3-shell-ready .action-item,
+  body.r3-shell-ready .subaction-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 84px;
+  }
+
+  /* Pages fiches : le même habillage sert les quatre domaines. La liste est
+     masquée, sa colonne ne doit pas rester réservée — l'attribut passe devant
+     les `.workspace` des gabarits, qui n'ajoutent aucune spécificité. */
+  .workspace[data-mode="fiche"] { grid-template-columns: 1fr; }
+  .fiche-retour { margin: 12px 0 0; }
+
+  .history-panel { padding: 19px; }
+  /* Une fiche bavarde dépasse la centaine de lignes : le panneau défile chez
+     lui plutôt que d'allonger la page de plusieurs milliers de pixels. */
+  .history-list { display: grid; gap: 7px; max-height: 460px; overflow-y: auto; }
+  .history-entry {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 4px 14px;
+    padding: 11px 13px;
+    border: 1px solid var(--r3-border);
+    border-radius: 9px;
+    background: var(--r3-surface);
+  }
+  .history-entry time,
+  .history-meta { color: var(--r3-text-muted); font-size: 11px; }
+  .history-field { font-weight: 600; }
+  .history-change { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; font-size: 12px; }
+  .history-before { color: var(--r3-text-muted); text-decoration: line-through; }
+  .history-arrow { color: var(--r3-primary); }
+  .history-scope { margin-left: 7px; }
+  @media (max-width: 700px) { .history-entry { grid-template-columns: 1fr; } }
+
+  @media (max-width: 720px) {
+    .r3-app-header {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 4px;
+      height: 56px;
+      padding-block: 6px;
+    }
+    body.r3-shell-ready { padding-top: 56px; }
+    .r3-app-logo { width: 40px; height: 36px; }
+    .r3-app-brand-label,
+    .r3-nav-current,
+    .r3-open-grist-label { display: none; }
+    .r3-nav-link,
+    .r3-open-grist { min-width: 40px; min-height: 40px; padding: 6px; }
+    body.r3-shell-ready .hero { grid-template-columns: minmax(0, 1fr); padding: 8px 12px; }
+  }
+  @media (max-width: 420px) {
+    .r3-app-header { padding-inline: 6px; }
+    .r3-app-logo { width: 36px; }
+    .r3-nav-link,
+    .r3-open-grist { min-width: 34px; padding-inline: 4px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .r3-skip-link { scroll-behavior: auto; }
+  }
+</style>
+
+<main class="dashboard-shell" data-r3-page="mct">
+  <header class="hero">
+    <div class="hero-brand">
+      <span class="r3-page-emoji" aria-hidden="true">📚</span>
+      <div class="hero-copy">
+        <span class="eyebrow">MANUEL DE CONTRÔLE TECHNIQUE · R3-GEN-L1</span>
+        <h1 id="page-title">Documents du MCT</h1>
+        <p id="page-subtitle">Liste de l'ensemble des documents composant le MCT du processus R3.</p>
+      </div>
+    </div>
+    <div class="hero-metrics" aria-label="Indicateurs du corpus documentaire">
+      <article><span>En vigueur</span><strong id="metric-total">—</strong></article>
+      <article><span>Catégories</span><strong id="metric-categories">—</strong></article>
+      <article class="metric-warning"><span>Impact à évaluer</span><strong id="metric-review">—</strong></article>
+      <article class="metric-danger"><span>Impactés ADR-FR</span><strong id="metric-impacted">—</strong></article>
+    </div>
+  </header>
+
+  <section id="filters-panel" class="filters-panel" aria-label="Recherche et filtres">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.7-4.7m2.2-5.3a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" /></svg>
+      <input id="search-input" type="search" placeholder="Rechercher partout, ou utiliser $champ:valeur…"
+        autocomplete="off" aria-label="Rechercher dans les documents du MCT" aria-autocomplete="list" aria-controls="search-suggestions" />
+      <details class="search-help">
+        <summary aria-label="Aide sur la recherche avancée" title="Aide sur la recherche avancée">i</summary>
+        <div class="search-help-popover" role="note">
+          <strong>Recherche avancée</strong>
+          <p>La recherche ignore la casse et les accents. Plusieurs termes sont combinés.</p>
+          <ul>
+            <li><code>securite aerodrome</code> : contient tous les mots</li>
+            <li><code>"sécurité aérienne"</code> : expression exacte</li>
+            <li><code>proc*</code> ou <code>R3-SSC-P?</code> : jokers</li>
+            <li><code>$categorie:SSC</code> : recherche dans un champ</li>
+            <li><code>$type:Procédure|Guide</code> : l’une des valeurs</li>
+            <li><code>-$diffusion:externe</code> : exclut une valeur</li>
+          </ul>
+          <p>Saisissez <code>$</code> pour voir les champs disponibles.</p>
+        </div>
+      </details>
+      <div id="search-suggestions" class="search-suggestions" role="listbox" hidden></div>
+      <small id="search-error" class="search-error" role="status" hidden></small>
+    </div>
+
+    <label class="filter-field">
+      <span>Vigueur</span>
+      <select id="status-filter">
+        <option value="active">En vigueur</option>
+        <option value="all">Tous</option>
+        <option value="retired">Retirés</option>
+      </select>
+    </label>
+
+    <label class="filter-field">
+      <span>Catégorie</span>
+      <select id="category-filter"></select>
+    </label>
+
+    <label class="filter-field">
+      <span>Type</span>
+      <select id="type-filter"></select>
+    </label>
+
+    <label class="filter-field">
+      <span>Créateur</span>
+      <select id="author-filter"></select>
+    </label>
+
+    <label class="filter-field">
+      <span>Diffusion</span>
+      <select id="diffusion-filter">
+        <option value="">Toutes</option>
+        <option value="Interne">Interne</option>
+        <option value="Externe">Externe</option>
+      </select>
+    </label>
+
+    <label class="filter-field">
+      <span>Impact ADR-FR</span>
+      <select id="impact-filter">
+        <option value="">Tous</option>
+        <option value="oui">Impactés</option>
+        <option value="evaluer">À évaluer</option>
+        <option value="non">Sans impact</option>
+      </select>
+    </label>
+
+    <button id="reset-filters" class="icon-button" type="button" title="Réinitialiser les filtres" aria-label="Réinitialiser les filtres">↺</button>
+    <button id="refresh-button" class="icon-button" type="button" title="Actualiser les données" aria-label="Actualiser les données">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5M4 18v-5h5m10-2a7 7 0 0 0-12-4L4 11m16 2-3 4a7 7 0 0 1-12-4" /></svg>
+    </button>
+  </section>
+
+  <div id="notice" class="notice" role="status" aria-live="polite">Chargement du corpus documentaire…</div>
+
+  <!-- Hors du bandeau : l’enveloppe applicative y masque tous les `p`
+       (`body.r3-shell-ready .hero p { display: none; }`), le lien de retour y
+       serait invisible. -->
+  <p id="fiche-retour" class="fiche-retour" hidden></p>
+
+  <div class="workspace" hidden id="workspace">
+    <aside id="portfolio-panel" class="portfolio-panel panel" aria-labelledby="portfolio-title">
+      <div class="panel-heading sticky-heading">
+        <div>
+          <span class="section-number">SÉLECTION</span>
+          <h2 id="portfolio-title">Documents</h2>
+        </div>
+        <strong id="portfolio-count" class="count-badge">—</strong>
+      </div>
+      <div id="action-list" class="action-list"></div>
+      <div id="empty-actions" class="empty-state" hidden>Aucun document ne correspond aux filtres.</div>
+    </aside>
+
+    <section class="detail-column" aria-live="polite">
+      <article class="action-overview panel">
+        <div id="detail-header"></div>
+        <div id="detail-groups" class="action-groups"></div>
+        <section id="description-block" class="description-block"></section>
+      </article>
+
+      <section class="panel subactions-panel" aria-labelledby="related-title">
+        <div class="panel-heading">
+          <div>
+            <span class="section-number">PILOTAGE</span>
+            <h2 id="related-title">Actions rattachées au document</h2>
+          </div>
+          <strong id="related-count" class="count-badge">0</strong>
+        </div>
+        <div id="related-list" class="subaction-list"></div>
+        <div id="empty-related" class="empty-state" hidden>Aucune action ne référence ce document.</div>
+      </section>
+
+      <section id="history-panel" class="panel history-panel" aria-labelledby="history-title" hidden>
+        <div class="panel-heading">
+          <div>
+            <span class="section-number">HISTORIQUE</span>
+            <h2 id="history-title">Historique de la fiche</h2>
+          </div>
+          <div class="panel-heading-actions">
+            <strong id="history-count" class="count-badge">0</strong>
+          </div>
+        </div>
+        <div id="history-list" class="history-list"></div>
+      </section>
+    </section>
+  </div>
+
+  <dialog id="edit-dialog" class="edit-dialog" aria-labelledby="edit-dialog-title">
+    <form id="edit-form" method="dialog" novalidate>
+      <header class="dialog-header">
+        <div>
+          <span id="edit-dialog-kicker" class="section-number">MODIFICATION</span>
+          <h2 id="edit-dialog-title">Modifier</h2>
+        </div>
+        <button id="close-edit" class="dialog-close" type="button" aria-label="Fermer">×</button>
+      </header>
+
+      <div id="edit-grid" class="edit-grid"></div>
+
+      <footer class="dialog-actions">
+        <button id="cancel-edit" class="button button-secondary" type="button">Annuler</button>
+        <button id="save-edit" class="button button-primary" type="submit">Enregistrer</button>
+      </footer>
+    </form>
+  </dialog>
+</main>
+
+<style>
+  /* Feuille commune aux pages Pilotage des actions, Annuaire R3 et Documents du MCT. */
+  /* Charte DSAC : bleus #0F468C / #4971A6 / #BAC8D9, oranges #F24B0F / #F2A488,
+     utilitaires #57BC02 et #EA1105. Le jaune est dérivé pour les états médians. */
+  :root {
+    
+    --ink: var(--r3-text);
+    --muted: var(--r3-text-muted);
+    --line: var(--r3-border);
+    --surface: var(--r3-surface);
+    --surface-soft: var(--r3-surface-soft);
+    --blue: var(--r3-primary);
+    --blue-hover: var(--r3-primary);
+    --blue-mid: #4971A6;
+    --blue-line: var(--r3-border);
+    --blue-soft: var(--r3-surface-hover);
+    --green: #57BC02;
+    --green-ink: #3b7d02;
+    --green-soft: #ecf7de;
+    --orange: #F24B0F;
+    --orange-soft: #fde8e0;
+    --yellow: #E8A100;
+    --yellow-ink: #8a5d00;
+    --yellow-soft: #fbf0d6;
+    --red: var(--r3-danger);
+    --red-soft: #fde7e5;
+    --grey: #8a99a8;
+    font-family: Marianne, "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; min-width: 340px; background: var(--surface-soft); color: var(--ink); }
+  button,
+  input,
+  select,
+  textarea { font: inherit; }
+
+  .dashboard-shell {
+    width: min(1700px, 100%);
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 18px;
+  }
+
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(340px, 1.2fr) minmax(500px, 0.8fr);
+    gap: 28px;
+    overflow: hidden;
+    padding: 26px 30px;
+    border-radius: 16px;
+    border-bottom: 4px solid var(--orange);
+    background: linear-gradient(120deg, #0F468C 0%, #0c3568 62%, #4971A6 130%);
+    color: #ffffff;
+    box-shadow: 0 10px 28px rgba(15, 70, 140, 0.22);
+  }
+
+  .hero::after {
+    position: absolute;
+    top: -105px;
+    right: -55px;
+    width: 280px;
+    height: 280px;
+    border: 50px solid rgba(242, 164, 136, 0.13);
+    border-radius: 50%;
+    content: "";
+  }
+
+  .hero-brand { display: flex; align-items: center; gap: 18px; }
+  .hero-logo {
+    display: grid;
+    flex: 0 0 auto;
+    width: 66px;
+    height: 66px;
+    place-items: center;
+    padding: 7px;
+    border-radius: 13px;
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(12, 53, 104, 0.28);
+  }
+  .hero-logo svg { display: block; width: 100%; height: auto; }
+  .hero-copy { align-self: center; }
+  .eyebrow,
+  .section-number {
+    display: block;
+    color: inherit;
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: 0.11em;
+  }
+
+  .hero h1 { margin: 5px 0 0; font-size: clamp(27px, 3vw, 42px); line-height: 1; letter-spacing: -0.035em; }
+  .hero p { margin: 9px 0 0; color: rgba(255, 255, 255, 0.84); font-size: 13px; }
+  .eyebrow { color: #F2A488; }
+
+  .hero-metrics {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(6px);
+  }
+
+  .hero-metrics article { display: grid; align-content: center; padding: 14px; border-left: 1px solid rgba(255, 255, 255, 0.2); }
+  .hero-metrics article:first-child { border-left: 0; }
+  .hero-metrics span { color: rgba(255, 255, 255, 0.76); font-size: 9px; font-weight: 750; text-transform: uppercase; }
+  .hero-metrics strong { margin-top: 3px; color: #ffffff; font-size: 26px; line-height: 1; }
+  .hero-metrics .metric-warning strong { color: #f5ce7a; }
+  .hero-metrics .metric-danger strong { color: #ff9c93; }
+
+  .filters-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: end;
+    margin-top: 14px;
+    padding: 13px;
+    border: 1px solid var(--blue-line);
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 3px 12px rgba(20, 36, 58, 0.07);
+  }
+
+  .search-box {
+    position: relative;
+    display: flex;
+    flex: 3 1 280px;
+    height: 42px;
+    align-items: center;
+    padding: 0 11px;
+    border: 1px solid #9aa8b6;
+    border-radius: 7px;
+  }
+
+  .search-box:focus-within,
+  .filter-field input:focus,
+  .filter-field select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(15, 70, 140, 0.15); }
+  .search-box svg { width: 19px; fill: none; stroke: var(--blue); stroke-width: 1.8; }
+  .search-box input { flex: 1 1 auto; width: auto; min-width: 0; height: 100%; padding: 0 9px; border: 0; outline: 0; }
+  .search-help { position: relative; flex: 0 0 auto; }
+  .search-help summary {
+    display: grid;
+    width: 25px;
+    height: 25px;
+    place-items: center;
+    border: 1px solid var(--blue);
+    border-radius: 50%;
+    background: #ffffff;
+    color: var(--blue);
+    cursor: pointer;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 850;
+    list-style: none;
+  }
+  .search-help summary::-webkit-details-marker { display: none; }
+  .search-help summary:hover,
+  .search-help[open] summary { background: var(--blue-soft); }
+  .search-help summary:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .search-help-popover {
+    position: fixed;
+    z-index: 24;
+    top: 0;
+    left: 0;
+    width: 410px;
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+    padding: 14px 16px;
+    border: 1px solid var(--blue-line);
+    border-radius: 9px;
+    background: #ffffff;
+    box-shadow: 0 10px 28px rgba(20, 36, 58, .2);
+    color: var(--ink);
+    font-size: 10px;
+    line-height: 1.45;
+  }
+  .search-help-popover > strong { color: var(--blue); font-size: 12px; }
+  .search-help-popover p { margin: 7px 0 0; }
+  .search-help-popover ul { display: grid; gap: 5px; margin: 9px 0 0; padding-left: 18px; }
+  .search-help-popover code { padding: 1px 4px; border-radius: 3px; background: var(--blue-soft); color: #173f71; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 9px; }
+  .search-suggestions {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 5px);
+    right: 0;
+    left: 0;
+    max-height: 230px;
+    overflow: auto;
+    padding: 5px;
+    border: 1px solid #9aa8b6;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(20, 36, 58, .18);
+  }
+  .search-suggestion {
+    display: grid;
+    width: 100%;
+    gap: 2px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+  }
+  .search-suggestion:hover,
+  .search-suggestion.active { background: var(--blue-soft); color: var(--blue); }
+  .search-suggestion small { color: var(--muted); font-size: 9px; }
+  .search-error {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 8px;
+    z-index: 21;
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: var(--red-soft);
+    color: #8c0a02;
+    font-size: 9px;
+  }
+
+  .filter-field { display: grid; flex: 1 1 140px; gap: 5px; min-width: 0; }
+  .filter-field span { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+  .filter-field input,
+  .filter-field select { width: 100%; height: 42px; padding: 0 9px; border: 1px solid #9aa8b6; border-radius: 7px; outline: 0; background: #ffffff; }
+
+  .icon-button {
+    display: grid;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid var(--blue);
+    border-radius: 7px;
+    background: #ffffff;
+    color: var(--blue);
+    cursor: pointer;
+  }
+  .icon-button:hover { background: var(--blue-soft); }
+  .icon-button:disabled { cursor: wait; opacity: 0.6; }
+  .icon-button svg { width: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+
+  .notice { margin-top: 14px; padding: 13px 15px; border-left: 5px solid var(--blue); border-radius: 5px; background: #ffffff; font-size: 12px; }
+  .notice.error { border-left-color: var(--red); background: var(--red-soft); color: #8c0a02; }
+
+  .workspace {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.72fr) minmax(650px, 2.28fr);
+    gap: 14px;
+    align-items: start;
+    margin-top: 14px;
+  }
+
+  .panel { border: 1px solid var(--blue-line); border-radius: 13px; background: #ffffff; box-shadow: 0 3px 12px rgba(20, 36, 58, 0.06); }
+  .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+  .panel-heading h2 { margin: 3px 0 0; font-size: 19px; letter-spacing: -0.02em; }
+  .section-number { color: var(--blue); }
+  .count-badge { min-width: 28px; padding: 5px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-size: 11px; text-align: center; }
+  .panel-heading-actions { display: flex; align-items: center; gap: 9px; }
+  .sticky-heading .panel-heading-actions { flex-direction: column; align-items: flex-end; gap: 7px; }
+
+  .portfolio-panel { position: sticky; top: 10px; max-height: calc(100vh - 20px); overflow: auto; padding: 18px 10px 12px; }
+  .sticky-heading { position: sticky; z-index: 2; top: -18px; margin: -18px -10px 10px; padding: 18px 18px 12px; border-bottom: 1px solid var(--line); background: #ffffff; }
+  .action-list { display: grid; gap: 7px; }
+
+  .action-item {
+    position: relative;
+    display: grid;
+    width: 100%;
+    gap: 8px;
+    overflow: hidden;
+    padding: 13px 13px 12px 16px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: #f6f8fb;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+  }
+  .action-item::before { position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--status-color, var(--grey)); content: ""; }
+  .action-item:hover { border-color: var(--blue-mid); background: #ffffff; }
+  .action-item.selected { border-color: var(--blue); background: var(--blue-soft); box-shadow: inset 0 0 0 1px var(--blue); }
+  .action-item-title { font-size: 12px; font-weight: 750; line-height: 1.35; }
+  .action-item-meta { display: flex; flex-wrap: wrap; gap: 7px 10px; color: var(--muted); font-size: 10px; }
+
+  .detail-column { display: grid; gap: 14px; min-width: 0; }
+  .action-overview { overflow: hidden; }
+  .action-header {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px 26px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(110deg, #ffffff 0%, #eef3f9 100%);
+  }
+  .action-header::before { position: absolute; inset: 0 auto 0 0; width: 6px; background: var(--status-color, var(--blue)); content: ""; }
+  .action-kicker { color: var(--blue); font-size: 10px; font-weight: 850; letter-spacing: 0.1em; }
+  .action-header h2 { max-width: 900px; margin: 6px 0 8px; font-size: clamp(22px, 2.2vw, 34px); line-height: 1.1; letter-spacing: -0.03em; }
+  .action-subline { color: var(--muted); font-size: 11px; }
+  .badge-row { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+  .header-actions { display: grid; justify-items: end; gap: 10px; }
+  .pill { display: inline-flex; align-items: center; min-height: 26px; padding: 4px 9px; border-radius: 999px; background: var(--blue-soft); color: #2c4a70; font-size: 10px; font-weight: 750; }
+  .pill-status { background: color-mix(in srgb, var(--status-color, var(--blue)) 14%, white); color: var(--status-color, var(--blue)); }
+  .pill-important { background: var(--red-soft); color: #b60d03; }
+  .pill-moyen { background: var(--yellow-soft); color: var(--yellow-ink); }
+  .pill-faible { background: var(--green-soft); color: var(--green-ink); }
+
+  .action-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 18px; }
+  .info-group { padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: #fafbfd; }
+  .info-group h3 { margin: 0 0 13px; color: var(--blue); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .info-list { display: grid; gap: 10px; margin: 0; }
+  .info-row { display: grid; grid-template-columns: minmax(105px, 0.65fr) minmax(0, 1.35fr); gap: 10px; align-items: baseline; }
+  .info-row dt { color: var(--muted); font-size: 10px; }
+  .info-row dd { min-width: 0; margin: 0; overflow-wrap: anywhere; font-size: 11px; font-weight: 650; }
+  .muted-value { color: var(--grey); font-weight: 400; }
+  .value-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .value-chip { padding: 3px 7px; border-radius: 5px; background: var(--blue-soft); color: var(--blue); font-size: 9px; font-weight: 700; }
+  .value-link { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+
+  .description-block { margin: 0 18px 18px; padding: 17px 19px; border-left: 5px solid var(--blue); border-radius: 7px; background: var(--blue-soft); }
+  .description-block h3 { margin: 0 0 7px; color: var(--blue); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .description-block p { margin: 0; white-space: pre-wrap; color: #1e3350; font-size: 12px; line-height: 1.55; }
+
+  .subactions-panel { padding: 19px; }
+  .subaction-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .subaction-card { position: relative; display: grid; gap: 9px; padding: 15px; border: 1px solid var(--line); border-radius: 10px; background: #fafbfd; }
+  .subaction-card::before { position: absolute; inset: 0 auto 0 0; width: 4px; border-radius: 10px 0 0 10px; background: var(--status-color, var(--grey)); content: ""; }
+  .subaction-topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .subaction-card h3 { margin: 0; font-size: 13px; line-height: 1.35; }
+  .subaction-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; color: var(--muted); font-size: 10px; }
+  .subaction-description { margin: 0; color: #3a3a3a; font-size: 10px; line-height: 1.45; }
+
+  .empty-state { padding: 28px 16px; border: 1px dashed var(--blue-line); border-radius: 9px; color: var(--muted); text-align: center; font-size: 11px; }
+
+  .button { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: 6px; padding: 8px 13px; border: 1px solid transparent; border-radius: 7px; font-weight: 750; text-decoration: none; cursor: pointer; }
+  .button:disabled { cursor: wait; opacity: .6; }
+  .button-primary { background: var(--blue); color: #ffffff; }
+  .button-primary:hover:not(:disabled) { background: var(--blue-hover); }
+  .button-secondary { border-color: var(--blue); background: #ffffff; color: var(--blue); }
+  .button-secondary:hover:not(:disabled) { background: var(--blue-soft); }
+  .button-compact { min-height: 30px; padding: 5px 10px; font-size: 11px; }
+
+  .edit-dialog { width: min(820px, calc(100vw - 28px)); max-height: calc(100vh - 28px); padding: 0; overflow: auto; border: 0; border-radius: 15px; color: var(--ink); box-shadow: 0 22px 70px rgba(0, 0, 0, .3); }
+  .edit-dialog::backdrop { background: rgba(12, 53, 104, .55); backdrop-filter: blur(2px); }
+  .dialog-header { position: sticky; z-index: 5; top: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 21px 24px; border-bottom: 1px solid var(--line); background: #ffffff; }
+  .dialog-header h2 { margin: 4px 0 0; font-size: 24px; }
+  .dialog-close { width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--blue-soft); color: var(--blue); font-size: 24px; cursor: pointer; }
+  .edit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 17px; padding: 22px 24px; }
+  .span-2 { grid-column: 1 / -1; }
+  .edit-field { display: grid; min-width: 0; gap: 6px; align-content: start; }
+  .edit-field[hidden] { display: none; }
+  .edit-field > span { color: #3a3a3a; font-size: 11px; font-weight: 750; }
+  .edit-field b { color: var(--red); }
+  .edit-field input,
+  .edit-field select,
+  .edit-field textarea { width: 100%; min-height: 41px; padding: 9px 10px; border: 1px solid #9aa8b6; border-radius: 7px; outline: 0; background: #ffffff; }
+  .edit-field textarea { min-height: 90px; resize: vertical; line-height: 1.45; }
+  .edit-field select[multiple] { min-height: 104px; padding: 4px; }
+  .edit-field input[type="checkbox"] { width: 22px; min-height: 22px; height: 22px; justify-self: start; accent-color: var(--blue); }
+  .edit-field input:focus,
+  .edit-field select:focus,
+  .edit-field textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(15, 70, 140, .15); }
+  .edit-field small { color: #b83a0b; font-size: 9px; }
+  .dialog-actions { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 9px; padding: 16px 24px; border-top: 1px solid var(--line); background: #ffffff; }
+
+  @media (max-width: 1150px) {
+    .hero { grid-template-columns: 1fr; }
+    .workspace { grid-template-columns: minmax(260px, 0.8fr) minmax(520px, 2.2fr); }
+    .action-groups { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 780px) {
+    .dashboard-shell { padding: 10px; }
+    .hero { padding: 22px; }
+    .hero-metrics { grid-template-columns: repeat(2, 1fr); }
+    .hero-metrics article:nth-child(3) { border-left: 0; border-top: 1px solid rgba(255,255,255,.2); }
+    .hero-metrics article:nth-child(4) { border-top: 1px solid rgba(255,255,255,.2); }
+    .workspace { grid-template-columns: 1fr; }
+    .portfolio-panel { position: static; max-height: 520px; }
+    .subaction-list { grid-template-columns: 1fr; }
+    .action-header { flex-direction: column; }
+    .badge-row { justify-content: flex-start; }
+    .header-actions { justify-items: start; }
+    .edit-grid { grid-template-columns: 1fr; padding: 18px; }
+    .span-2 { grid-column: auto; }
+    .dialog-actions { padding: 14px 18px; }
+  }
+</style>
+
+<script>
+(function (root, factory) {
+  "use strict";
+  const api = factory();
+  if (typeof module === "object" && module.exports) module.exports = api;
+  if (root) root.R3GristViews = api;
+})(typeof globalThis === "object" ? globalThis : this, function () {
+  "use strict";
+
+  const PAGE_MANIFEST = Object.freeze([
+    { key: "activity", viewName: "🔔 Activité", label: "Activité", emoji: "🔔", group: "principal", order: 10, capability: "activity" },
+    { key: "publications", viewName: "🗞️ Publications", label: "Publications", emoji: "🗞️", group: "principal", order: 20, capability: "publications" },
+    { key: "actions", viewName: "🎯 R3-GEN-L3 • Pilotage des actions", label: "Actions", emoji: "🎯", group: "principal", order: 30, capability: "identified" },
+    { key: "directory", viewName: "🤝 R3-GEN-L2 • Annuaire R3", label: "Annuaire", emoji: "🤝", group: "principal", order: 40, capability: "identified" },
+    { key: "mct", viewName: "📚 R3-GEN-L1 • Documents du MCT", label: "Documents du MCT", emoji: "📚", group: "principal", order: 50, capability: "identified" },
+    { key: "suggestions", viewName: "📬 • Consulter les suggestions", label: "Suggestions", emoji: "📬", group: "principal", order: 60, capability: "identified" },
+    { key: "preferences", viewName: "🔔 Gérer mes notifications", label: "Préférences", emoji: "⚙️", group: "utility", order: 10, capability: "identified" }
+  ]);
+
+  const GROUP_ORDER = Object.freeze({ principal: 10, suggestions: 20, utility: 30, administration: 40 });
+  const THEME_PARAMETERS = Object.freeze(["themeAppearance", "themeSyncWithOs"]);
+
+  function rowsFromTable(table) {
+    const columns = Object.keys(table || {});
+    return (table?.id || []).map((id, index) => Object.fromEntries(
+      columns.map(column => [column, table[column]?.[index]])
+    ));
+  }
+
+  function documentBaseFromApi(apiBaseUrl, orgSlug = "dsac-r3") {
+    let apiUrl;
+    try {
+      apiUrl = new URL(apiBaseUrl);
+    } catch (_) {
+      throw new Error("URL d’API du document Grist introuvable");
+    }
+    const apiMatch = apiUrl.pathname.match(/^(.*)\/api\/docs\/([^/]+)\/?$/);
+    if (!apiMatch) throw new Error("l’URL d’API Grist n’utilise pas /api/docs/…");
+    const prefix = apiMatch[1] || `/o/${encodeURIComponent(orgSlug)}`;
+    return `${apiUrl.origin}${prefix}/doc/${apiMatch[2]}`;
+  }
+
+  function viewRefByName(pageName, viewsTable) {
+    const viewRefs = rowsFromTable(viewsTable)
+      .filter(row => row.name === pageName)
+      .map(row => Number(row.id));
+    if (viewRefs.length !== 1) {
+      throw new Error(`page ${pageName} absente ou ambiguë dans les métadonnées`);
+    }
+    return viewRefs[0];
+  }
+
+  function resolvePermalinkTarget(pageName, tableId, documentBase, viewsTable, sectionsTable, tablesTable) {
+    const viewRef = viewRefByName(pageName, viewsTable);
+    const tableRefs = rowsFromTable(tablesTable)
+      .filter(row => row.tableId === tableId)
+      .map(row => Number(row.id));
+    if (tableRefs.length !== 1) {
+      throw new Error(`table ${tableId} absente ou ambiguë dans les métadonnées`);
+    }
+    const sectionRefs = rowsFromTable(sectionsTable)
+      .filter(row => Number(row.parentId) === viewRef
+        && Number(row.tableRef) === tableRefs[0]
+        && row.parentKey === "custom")
+      .map(row => Number(row.id));
+    if (sectionRefs.length !== 1) {
+      throw new Error(`section ${tableId} absente ou ambiguë sur la page ${viewRef}`);
+    }
+    return { documentBase, viewRef, sectionRef: sectionRefs[0] };
+  }
+
+  function allowedThemeParameters(sourceUrl) {
+    if (!sourceUrl) return {};
+    let source;
+    try {
+      source = new URL(sourceUrl);
+    } catch (_) {
+      return {};
+    }
+    return Object.fromEntries(THEME_PARAMETERS
+      .filter(name => source.searchParams.has(name))
+      .map(name => [name, source.searchParams.get(name)]));
+  }
+
+  function pageUrl(documentBase, viewRef, sourceUrl) {
+    const numericViewRef = Number(viewRef);
+    if (!Number.isInteger(numericViewRef) || numericViewRef <= 0) {
+      throw new Error(`identifiant de page invalide : ${viewRef}`);
+    }
+    const url = new URL(`${documentBase}/p/${numericViewRef}`);
+    url.searchParams.set("style", "singlePage");
+    for (const [name, value] of Object.entries(allowedThemeParameters(sourceUrl))) {
+      url.searchParams.set(name, value);
+    }
+    return url.toString();
+  }
+
+  function recordPermalink(target, rowId, sourceUrl) {
+    const numericRowId = Number(rowId);
+    if (!Number.isInteger(numericRowId) || numericRowId <= 0) {
+      throw new Error(`identifiant de fiche invalide : ${rowId}`);
+    }
+    return `${pageUrl(target.documentBase, target.viewRef, sourceUrl)}`
+      + `#a1.s${target.sectionRef}.r${numericRowId}`;
+  }
+
+  function resolveManifest(manifest, viewsTable) {
+    const views = rowsFromTable(viewsTable);
+    return manifest.map(page => {
+      const matches = views.filter(view => view.name === page.viewName);
+      if (matches.length === 1) return { ...page, status: "resolved", viewRef: Number(matches[0].id) };
+      return { ...page, status: matches.length ? "ambiguous" : "missing", viewRef: null };
+    });
+  }
+
+  function capabilitiesFromAgent(agent, options = {}) {
+    const identified = Boolean(agent && Number(agent.id));
+    const active = identified && agent.Actif !== false && agent.Actif !== 0;
+    return {
+      identified,
+      active,
+      gestionActions: active && Boolean(agent?.Gestion_actions),
+      gestionAnnuaire: active && Boolean(agent?.Gestion_annuaire),
+      gestionMct: active && Boolean(agent?.Gestion_MCT),
+      gestionSuggestions: active && Boolean(agent?.Gestion_suggestions),
+      activity: active && Boolean(options.activity),
+      publications: active && Boolean(options.publications),
+      realOwner: Boolean(options.realOwner)
+    };
+  }
+
+  function hasPageCapability(page, capabilities) {
+    if (page.capability === "identified") return capabilities.identified;
+    if (page.capability === "active") return capabilities.active;
+    if (page.capability === "activity") return capabilities.activity;
+    if (page.capability === "suggestions") return capabilities.gestionSuggestions;
+    if (page.capability === "publications") return capabilities.publications;
+    if (page.capability === "owner") return capabilities.realOwner;
+    return false;
+  }
+
+  function menuForCapabilities(resolvedManifest, capabilities) {
+    return resolvedManifest
+      .filter(page => hasPageCapability(page, capabilities))
+      .sort((left, right) => (GROUP_ORDER[left.group] || 999) - (GROUP_ORDER[right.group] || 999)
+        || left.order - right.order
+        || left.label.localeCompare(right.label, "fr"));
+  }
+
+  // Modèle de la cloche : compte les non lues et retient les dernières
+  // activités non archivées. Le tri et la coupe vivent ici pour être testés.
+  function clocheModele(rows, limite = 10) {
+    const actives = (rows || []).filter(row => row.Statut !== "Archivée");
+    return {
+      nonLues: actives.filter(row => row.Statut === "Non lue").length,
+      dernieres: [...actives]
+        .sort((left, right) => Number(right.Date_evenement) - Number(left.Date_evenement))
+        .slice(0, limite)
+    };
+  }
+
+  // Une fiche ouverte par permalien peut sortir des filtres par défaut de la
+  // page (action terminée, agent inactif, document hors vigueur). On l'ajoute
+  // alors en tête de la liste filtrée plutôt que de la perdre : sans cela le
+  // rendu retombe sur la première fiche visible, en silence.
+  function avecEpingle(liste, epingleId, toutes) {
+    const id = Number(epingleId);
+    if (!Number.isInteger(id) || id <= 0) return liste;
+    if (liste.some(item => item.id === id)) return liste;
+    const epingle = (toutes || []).find(item => item.id === id);
+    return epingle ? [epingle, ...liste] : liste;
+  }
+
+  // Les pages fiches des quatre domaines partagent le même squelette et les
+  // mêmes identifiants dans les gabarits : la mise en mode vit donc ici plutôt
+  // qu'en quatre copies.
+  function appliquerModeFiche(actif, textes = {}) {
+    const trouve = id => document.getElementById(id);
+    // Le panneau d'historique reste fermé jusqu'au rendu : la page liste ne
+    // l'ouvre jamais, la fiche l'ouvre par `renderHistorique`. On le dit ici
+    // plutôt que de s'en remettre au seul attribut `hidden` du gabarit.
+    const panneau = trouve("history-panel");
+    if (panneau) panneau.hidden = true;
+    if (!actif) return;
+    const workspace = trouve("workspace");
+    if (workspace) workspace.setAttribute("data-mode", "fiche");
+    for (const id of ["filters-panel", "portfolio-panel"]) {
+      const masque = trouve(id);
+      if (masque) masque.hidden = true;
+    }
+    if (textes.titre && trouve("page-title")) trouve("page-title").textContent = textes.titre;
+    if (textes.sousTitre && trouve("page-subtitle")) trouve("page-subtitle").textContent = textes.sousTitre;
+  }
+
+  function poserLienRetour(libelle, url) {
+    const bloc = document.getElementById("fiche-retour");
+    if (!bloc) return;
+    const lien = document.createElement("a");
+    lien.className = "button button-secondary";
+    lien.textContent = libelle;
+    lien.href = url;
+    lien.target = "_top";
+    bloc.replaceChildren(lien);
+    bloc.hidden = false;
+  }
+
+  // Une fiche rassemble ses propres lignes d'historique et celles de ce qui lui
+  // est rattaché (les sous-actions d'une action), du plus récent au plus ancien.
+  function historiquePour(historique, colonneRef, idsConcernes) {
+    const concernes = new Set((idsConcernes || []).map(Number));
+    return (historique || [])
+      .filter(ligne => concernes.has(Number(ligne[colonneRef])))
+      .sort((gauche, droite) => Number(droite.Date || 0) - Number(gauche.Date || 0)
+        || Number(droite.id) - Number(gauche.id));
+  }
+
+  function renderHistorique(lignes, options = {}) {
+    const trouve = id => document.getElementById(id);
+    const liste = trouve("history-list");
+    if (!liste) return;
+    const noeud = (tag, className, text) => {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined && text !== null) element.textContent = String(text);
+      return element;
+    };
+    const panneau = trouve("history-panel");
+    if (panneau) panneau.hidden = false;
+    const compteur = trouve("history-count");
+    if (compteur) compteur.textContent = lignes.length.toLocaleString("fr-FR");
+    liste.replaceChildren();
+    if (!lignes.length) {
+      liste.appendChild(noeud("div", "empty-state", options.vide || "Aucune modification enregistrée."));
+      return;
+    }
+    for (const ligne of lignes) {
+      const entree = noeud("article", "history-entry");
+      const quand = noeud("div");
+      quand.appendChild(noeud("time", "", options.date?.(ligne) || "Date non renseignée"));
+      quand.appendChild(noeud("div", "history-meta", options.auteur?.(ligne) || "Auteur non renseigné"));
+      entree.appendChild(quand);
+
+      const quoi = noeud("div");
+      const titre = noeud("div", "history-field",
+        `${ligne.Operation || "Modification"} · ${ligne.Champ || "Champ non précisé"}`);
+      const portee = options.portee?.(ligne);
+      if (portee) titre.appendChild(noeud("span", "value-chip history-scope", portee));
+      quoi.appendChild(titre);
+      const changement = noeud("div", "history-change");
+      changement.appendChild(noeud("span", "history-before", String(ligne.Avant ?? "") || "— vide —"));
+      changement.appendChild(noeud("span", "history-arrow", "→"));
+      changement.appendChild(noeud("span", "history-after", String(ligne.Apres ?? "") || "— vide —"));
+      quoi.appendChild(changement);
+      entree.appendChild(quoi);
+      liste.appendChild(entree);
+    }
+  }
+
+  function currentViewRef(sourceUrl) {
+    if (!sourceUrl) return null;
+    try {
+      const match = new URL(sourceUrl).pathname.match(/\/p\/(\d+)(?:\/|$)/);
+      return match ? Number(match[1]) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  return {
+    PAGE_MANIFEST,
+    rowsFromTable,
+    documentBaseFromApi,
+    viewRefByName,
+    resolvePermalinkTarget,
+    pageUrl,
+    recordPermalink,
+    resolveManifest,
+    capabilitiesFromAgent,
+    hasPageCapability,
+    menuForCapabilities,
+    clocheModele,
+    avecEpingle,
+    appliquerModeFiche,
+    poserLienRetour,
+    historiquePour,
+    renderHistorique,
+    currentViewRef,
+    allowedThemeParameters
+  };
+});
+
+(() => {
+  "use strict";
+
+  const views = globalThis.R3GristViews;
+  const elements = {
+    header: document.getElementById("r3-app-nav"),
+    list: document.getElementById("r3-nav-list"),
+    navDetails: document.getElementById("r3-nav-details"),
+    navCurrent: document.getElementById("r3-nav-current"),
+    navCurrentEmoji: document.getElementById("r3-nav-current-emoji"),
+    diagnostic: document.getElementById("r3-nav-diagnostic"),
+    openGrist: document.getElementById("r3-open-grist"),
+    capabilityNotice: document.getElementById("r3-capability-notice"),
+    bell: document.getElementById("r3-bell"),
+    bellButton: document.getElementById("r3-bell-button"),
+    bellCount: document.getElementById("r3-bell-count"),
+    bellPanel: document.getElementById("r3-bell-panel"),
+    bellList: document.getElementById("r3-bell-list"),
+    bellEmpty: document.getElementById("r3-bell-empty"),
+    bellPage: document.getElementById("r3-bell-page")
+  };
+  const state = {
+    documentBase: null,
+    currentViewRef: null,
+    capabilities: null,
+    resolvedManifest: [],
+    navigationMs: null,
+    agentId: null,
+    bellRows: []
+  };
+
+  function make(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function readStorage(key) {
+    try {
+      return window.localStorage.getItem(key);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function writeStorage(key, value) {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch (_) {
+      // Le stockage est optionnel : certains navigateurs cloisonnent les widgets.
+    }
+  }
+
+  function identityStorageKey(apiBaseUrl) {
+    try {
+      const url = new URL(apiBaseUrl);
+      return `r3-action-dashboard.identity:${url.origin}${url.pathname}`;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function selectedAgent(agents, contextRows, apiBaseUrl) {
+    const agentIds = [...new Set(contextRows.map(row => Number(row.Agent)).filter(Number.isInteger))];
+    if (agentIds.length === 1) return agents.find(agent => Number(agent.id) === agentIds[0]) || null;
+    if (agentIds.length > 1) {
+      const stored = Number(readStorage(identityStorageKey(apiBaseUrl))) || null;
+      if (agentIds.includes(stored)) return agents.find(agent => Number(agent.id) === stored) || null;
+    }
+    return null;
+  }
+
+  function ownerCapabilities() {
+    return {
+      identified: true,
+      active: true,
+      gestionActions: true,
+      gestionAnnuaire: true,
+      gestionMct: true,
+      gestionSuggestions: true,
+      activity: true,
+      publications: false,
+      realOwner: true
+    };
+  }
+
+  function rememberNavigationStart() {
+    if (!state.documentBase) return;
+    writeStorage(`r3-app-shell.navigation-start:${state.documentBase}`, String(Date.now()));
+  }
+
+  function measureNavigation() {
+    if (!state.documentBase) return;
+    const key = `r3-app-shell.navigation-start:${state.documentBase}`;
+    const started = Number(readStorage(key));
+    if (!Number.isFinite(started) || started <= 0) return;
+    state.navigationMs = Math.max(0, Date.now() - started);
+    writeStorage(key, "");
+    document.documentElement.dataset.r3NavigationMs = String(state.navigationMs);
+  }
+
+  function createNavLink(page) {
+    const link = make("a", "r3-nav-link");
+    const emoji = make("span", "r3-nav-emoji", page.emoji);
+    emoji.setAttribute("aria-hidden", "true");
+    link.appendChild(emoji);
+    link.appendChild(make("span", "r3-nav-label", page.label));
+    link.href = views.pageUrl(state.documentBase, page.viewRef, document.referrer);
+    link.target = "_top";
+    link.title = page.label;
+    link.setAttribute("aria-label", page.label);
+    if (page.viewRef === state.currentViewRef) link.setAttribute("aria-current", "page");
+    link.addEventListener("click", () => {
+      if (elements.navDetails) elements.navDetails.open = false;
+      rememberNavigationStart();
+    });
+    return link;
+  }
+
+  function renderNavigation() {
+    // Toutes les pages accessibles tiennent dans un menu déroulant : plus de
+    // plafond de liens, l'en-tête reste compact quel que soit leur nombre.
+    const pages = views.menuForCapabilities(state.resolvedManifest, state.capabilities)
+      .filter(page => page.status === "resolved");
+    elements.list.replaceChildren(...pages.map(createNavLink));
+    const current = pages.find(page => page.viewRef === state.currentViewRef);
+    if (elements.navCurrent) elements.navCurrent.textContent = current ? current.label : "Navigation";
+    if (elements.navCurrentEmoji) elements.navCurrentEmoji.textContent = current ? current.emoji : "🧭";
+    const unresolved = views.menuForCapabilities(state.resolvedManifest, state.capabilities)
+      .filter(page => page.status !== "resolved");
+    elements.diagnostic.hidden = unresolved.length === 0;
+    elements.diagnostic.textContent = unresolved.length
+      ? `${unresolved.length} page(s) du manifeste sont absentes ou ambiguës.`
+      : "";
+  }
+
+  function resolveCurrentViewRef() {
+    const pageKey = document.querySelector("[data-r3-page]")?.getAttribute("data-r3-page");
+    const markedPage = state.resolvedManifest.find(page => page.key === pageKey && page.status === "resolved");
+    return markedPage?.viewRef ?? views.currentViewRef(document.referrer);
+  }
+
+  function applyCapabilities() {
+    for (const node of document.querySelectorAll("[data-r3-capability]")) {
+      const capability = node.getAttribute("data-r3-capability");
+      const allowed = Boolean(state.capabilities?.[capability]);
+      node.hidden = !allowed;
+      node.setAttribute("aria-disabled", allowed ? "false" : "true");
+    }
+    const currentPage = state.resolvedManifest.find(page => page.viewRef === state.currentViewRef);
+    const allowed = !currentPage || views.hasPageCapability(currentPage, state.capabilities);
+    elements.capabilityNotice.hidden = allowed;
+    elements.capabilityNotice.textContent = allowed ? "" :
+      "Cette page est accessible directement, mais votre profil ne permet pas d’y accomplir les actions proposées.";
+  }
+
+  // --- cloche Activité ------------------------------------------------------
+
+  function activityPageUrl() {
+    const page = state.resolvedManifest.find(candidate =>
+      candidate.key === "activity" && candidate.status === "resolved");
+    return page ? views.pageUrl(state.documentBase, page.viewRef, document.referrer) : null;
+  }
+
+  async function setBellStatus(row, statut) {
+    await grist.docApi.applyUserActions([["UpdateRecord", "Activite", row.id, { Statut: statut }]]);
+    row.Statut = statut;
+    renderBell();
+  }
+
+  function bellItem(row) {
+    const item = make("li", "r3-bell-item");
+    item.setAttribute("data-statut", row.Statut || "");
+    const link = make("a", "r3-bell-item-lien", row.Titre || row.Regle || "Notification");
+    link.href = row.Permalien || "#";
+    link.target = "_top";
+    // La lecture est enregistrée avant de quitter l'iframe : naviguer tout de
+    // suite annulerait la requête.
+    link.addEventListener("click", event => {
+      event.preventDefault();
+      const marquage = row.Statut === "Non lue" ? setBellStatus(row, "Lue") : Promise.resolve();
+      marquage.catch(() => {}).then(() => { window.top.location.href = link.href; });
+    });
+    item.appendChild(link);
+    if (row.Resume) item.appendChild(make("p", "r3-bell-item-resume", row.Resume));
+    const actions = make("div", "r3-bell-item-actions");
+    if (row.Statut === "Non lue") {
+      const read = make("button", "", "Marquer comme lue");
+      read.type = "button";
+      read.addEventListener("click", () => setBellStatus(row, "Lue").catch(() => {}));
+      actions.appendChild(read);
+    }
+    const archive = make("button", "", "Archiver");
+    archive.type = "button";
+    archive.addEventListener("click", () => setBellStatus(row, "Archivée").catch(() => {}));
+    actions.appendChild(archive);
+    item.appendChild(actions);
+    return item;
+  }
+
+  function renderBell() {
+    const model = views.clocheModele(state.bellRows, 10);
+    elements.bellCount.hidden = model.nonLues === 0;
+    elements.bellCount.textContent = model.nonLues > 99 ? "99+" : String(model.nonLues);
+    elements.bellButton.setAttribute("aria-label",
+      model.nonLues ? `Notifications, ${model.nonLues} non lue(s)` : "Notifications");
+    elements.bellList.replaceChildren(...model.dernieres.map(bellItem));
+    elements.bellEmpty.hidden = model.dernieres.length > 0;
+  }
+
+  async function loadBell() {
+    if (!elements.bell || !state.capabilities?.activity) return;
+    const table = await grist.docApi.fetchTable("Activite");
+    // Un propriétaire voit toutes les lignes : la cloche ne montre que les
+    // siennes, comme les ACL le font pour un agent.
+    state.bellRows = views.rowsFromTable(table)
+      .filter(row => !state.agentId || Number(row.Agent) === Number(state.agentId));
+    const pageUrl = activityPageUrl();
+    elements.bellPage.hidden = !pageUrl;
+    if (pageUrl) elements.bellPage.href = pageUrl;
+    function setBellOpen(open) {
+      elements.bellPanel.hidden = !open;
+      elements.bellButton.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    elements.bellButton.addEventListener("click", () => {
+      setBellOpen(elements.bellPanel.hidden);
+    });
+    // Un clic hors du panneau ou Échap le referme. Le widget est dans une iframe :
+    // un clic ailleurs dans Grist n'arrive pas ici, d'où la fermeture au blur.
+    document.addEventListener("click", event => {
+      if (!elements.bellPanel.hidden && !elements.bell.contains(event.target)) setBellOpen(false);
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Escape" || elements.bellPanel.hidden) return;
+      setBellOpen(false);
+      elements.bellButton.focus();
+    });
+    window.addEventListener("blur", () => setBellOpen(false));
+    renderBell();
+    elements.bell.hidden = false;
+  }
+
+  async function loadShell() {
+    if (!views) throw new Error("socle de navigation indisponible");
+    const main = document.querySelector("main");
+    if (main && !main.id) main.id = "r3-main";
+    const [viewsTable, agentsTable, contextTable, access] = await Promise.all([
+      grist.docApi.fetchTable("_grist_Views"),
+      grist.docApi.fetchTable("Agents"),
+      grist.docApi.fetchTable("Contexte_utilisateur"),
+      grist.docApi.getAccessToken({ readOnly: true })
+    ]);
+    state.documentBase = views.documentBaseFromApi(access.baseUrl);
+    state.resolvedManifest = views.resolveManifest(views.PAGE_MANIFEST, viewsTable);
+    state.currentViewRef = resolveCurrentViewRef();
+    const agents = views.rowsFromTable(agentsTable);
+    const contexts = views.rowsFromTable(contextTable);
+    const realOwner = new Set(contexts.map(row => Number(row.Agent)).filter(Number.isInteger)).size > 1;
+    const agent = selectedAgent(agents, contexts, access.baseUrl);
+    // Capacité Activité ouverte le 2026-08-27, après la recette du dispatcher.
+    state.capabilities = realOwner && !agent
+      ? ownerCapabilities()
+      : views.capabilitiesFromAgent(agent, { realOwner, activity: true, publications: false });
+    state.agentId = agent?.id ?? null;
+    measureNavigation();
+    renderNavigation();
+    applyCapabilities();
+    loadBell().catch(() => {});   // la cloche ne doit jamais casser le shell
+    if (realOwner) {
+      elements.openGrist.hidden = false;
+      elements.openGrist.href = state.currentViewRef
+        ? views.pageUrl(state.documentBase, state.currentViewRef, document.referrer)
+        : state.documentBase;
+    }
+    document.body.classList.add("r3-shell-ready");
+    globalThis.R3AppShell = {
+      capabilities: state.capabilities,
+      agentId: agent?.id ?? null,
+      resolvedManifest: state.resolvedManifest,
+      documentBase: state.documentBase,
+      navigationMs: state.navigationMs,
+      applyCapabilities
+    };
+    if (typeof globalThis.CustomEvent === "function") {
+      document.dispatchEvent(new CustomEvent("r3:capabilities-ready", { detail: state.capabilities }));
+    }
+  }
+
+  grist.ready({ requiredAccess: "full" });
+  loadShell().catch(error => {
+    document.body.classList.add("r3-shell-ready");
+    elements.diagnostic.hidden = false;
+    elements.diagnostic.textContent = `Navigation indisponible : ${error?.message || error}`;
+  });
+})();
+
+(() => {
+  "use strict";
+
+  const { documentBaseFromApi, viewRefByName, resolvePermalinkTarget, recordPermalink, pageUrl, avecEpingle,
+    appliquerModeFiche, poserLienRetour, historiquePour, renderHistorique } = globalThis.R3GristViews;
+
+  const MCT_TABLE = "R3_GEN_L1_Liste_des_documents_du_MCT_R3";
+  // La page fiche est la cible des permaliens : elle n'a qu'un contrat, afficher
+  // la ligne du curseur. Aucun filtre à lever, donc aucune fiche ouverte à côté.
+  const MODE_FICHE = globalThis.R3ModeFiche || null;
+  const PERMALINK_PAGE = "📚 Fiche document";
+  const PERMALINK_ORG = "dsac-r3";
+  const DEFAULT_STATUS_FILTER = "active";
+
+  const elements = {
+    workspace: document.getElementById("workspace"),
+    notice: document.getElementById("notice"),
+    total: document.getElementById("metric-total"),
+    categories: document.getElementById("metric-categories"),
+    review: document.getElementById("metric-review"),
+    impacted: document.getElementById("metric-impacted"),
+    search: document.getElementById("search-input"),
+    searchSuggestions: document.getElementById("search-suggestions"),
+    searchError: document.getElementById("search-error"),
+    statusFilter: document.getElementById("status-filter"),
+    categoryFilter: document.getElementById("category-filter"),
+    typeFilter: document.getElementById("type-filter"),
+    authorFilter: document.getElementById("author-filter"),
+    diffusionFilter: document.getElementById("diffusion-filter"),
+    impactFilter: document.getElementById("impact-filter"),
+    resetFilters: document.getElementById("reset-filters"),
+    refresh: document.getElementById("refresh-button"),
+    portfolioCount: document.getElementById("portfolio-count"),
+    documentList: document.getElementById("action-list"),
+    emptyDocuments: document.getElementById("empty-actions"),
+    detailHeader: document.getElementById("detail-header"),
+    detailGroups: document.getElementById("detail-groups"),
+    description: document.getElementById("description-block"),
+    relatedCount: document.getElementById("related-count"),
+    relatedList: document.getElementById("related-list"),
+    emptyRelated: document.getElementById("empty-related"),
+    editDialog: document.getElementById("edit-dialog"),
+    editForm: document.getElementById("edit-form"),
+    editGrid: document.getElementById("edit-grid"),
+    editKicker: document.getElementById("edit-dialog-kicker"),
+    editTitle: document.getElementById("edit-dialog-title"),
+    closeEdit: document.getElementById("close-edit"),
+    cancelEdit: document.getElementById("cancel-edit"),
+    saveEdit: document.getElementById("save-edit"),
+    historyPanel: document.getElementById("history-panel")
+  };
+
+  const state = {
+    documents: [],
+    historique: [],
+    references: new Map(),
+    agents: new Map(),
+    actionsByDocument: new Map(),
+    searchIndexes: new Map(),
+    selectedId: null,
+    requestedId: null,
+    epingleId: null,
+    cursorSyncId: null,
+    permalinkTarget: null,
+    initialized: false,
+    loading: false,
+    saving: false
+  };
+
+  // Helpers communs aux widgets Pilotage des actions, Annuaire R3 et Documents du MCT.
+  const collator = new Intl.Collator("fr", { sensitivity: "base", numeric: true });
+
+  function make(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  function canManageMct() {
+    return Boolean(globalThis.R3AppShell?.capabilities?.gestionMct);
+  }
+
+  function normalize(value) {
+    return String(value ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[’‘]/g, "'")
+      .toLocaleLowerCase("fr-FR")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function normalizeFieldName(value) {
+    return normalize(value).replace(/[^a-z0-9]+/g, "");
+  }
+
+  function tokenizeSearchQuery(query) {
+    const tokens = [];
+    let current = "";
+    let quoted = false;
+    let escaped = false;
+    for (const character of String(query || "")) {
+      if (escaped) {
+        current += character;
+        escaped = false;
+      } else if (character === "\\") {
+        escaped = true;
+      } else if (character === '"') {
+        quoted = !quoted;
+      } else if (/\s/.test(character) && !quoted) {
+        if (current) tokens.push(current);
+        current = "";
+      } else {
+        current += character;
+      }
+    }
+    if (escaped) current += "\\";
+    if (quoted) throw new Error("Guillemet fermant manquant");
+    if (current) tokens.push(current);
+    return tokens;
+  }
+
+  function parseSearchQuery(query, definitions) {
+    const aliases = new Map();
+    for (const definition of definitions) {
+      for (const alias of [definition.query, definition.key, definition.label, ...(definition.aliases || [])]) {
+        aliases.set(normalizeFieldName(alias), definition.key);
+      }
+    }
+    return tokenizeSearchQuery(query).map(rawToken => {
+      let token = rawToken;
+      let excluded = false;
+      if (token.startsWith("-") && token.length > 1) {
+        excluded = true;
+        token = token.slice(1);
+      }
+      let field = null;
+      if (token.startsWith("$")) {
+        const separator = token.indexOf(":");
+        if (separator < 2) throw new Error("Recherche ciblée attendue sous la forme $champ:valeur");
+        const requested = token.slice(1, separator);
+        field = aliases.get(normalizeFieldName(requested));
+        if (!field) throw new Error(`Champ de recherche inconnu : ${requested}`);
+        token = token.slice(separator + 1);
+        if (!token) throw new Error(`Valeur manquante après $${requested}:`);
+      }
+      const alternatives = token.split("|").map(normalize).filter(Boolean);
+      if (!alternatives.length) throw new Error("Terme de recherche vide");
+      return { field, alternatives, excluded };
+    });
+  }
+
+  function wildcardMatch(value, pattern) {
+    if (!pattern.includes("*") && !pattern.includes("?")) return value.includes(pattern);
+    const source = pattern.split("").map(character => {
+      if (character === "*") return ".*";
+      if (character === "?") return ".";
+      return character.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }).join("");
+    return new RegExp(source, "u").test(value);
+  }
+
+  function flatSearchValues(value) {
+    if (Array.isArray(value)) return value.flatMap(flatSearchValues);
+    if (value === null || value === undefined || value === "") return [];
+    return [normalize(value)].filter(Boolean);
+  }
+
+  function buildSearchIndex(record, definitions) {
+    const fields = new Map();
+    const all = [];
+    for (const definition of definitions) {
+      const values = flatSearchValues(definition.values(record));
+      fields.set(definition.key, values);
+      all.push(...values);
+    }
+    return { fields, all };
+  }
+
+  function matchesSearch(index, clauses) {
+    return clauses.every(clause => {
+      const values = clause.field ? (index.fields.get(clause.field) || []) : index.all;
+      const matched = clause.alternatives.some(pattern =>
+        values.some(value => wildcardMatch(value, pattern)));
+      return clause.excluded ? !matched : matched;
+    });
+  }
+
+  function searchDateValues(value) {
+    const date = dateFromValue(value);
+    if (!date) return [];
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return [`${day}/${month}/${year}`, `${year}-${month}-${day}`, formatDate(value)];
+  }
+
+  function rowsFromTable(table) {
+    const columns = Object.keys(table || {});
+    return (table?.id || []).map((id, index) => Object.fromEntries(
+      columns.map(column => [column, table[column]?.[index]])
+    ));
+  }
+
+  async function getPermalinkTarget() {
+    if (state.permalinkTarget) return state.permalinkTarget;
+    const [views, sections, tables, access] = await Promise.all([
+      grist.docApi.fetchTable("_grist_Views"),
+      grist.docApi.fetchTable("_grist_Views_section"),
+      grist.docApi.fetchTable("_grist_Tables"),
+      grist.docApi.getAccessToken({ readOnly: true })
+    ]);
+    state.permalinkTarget = resolvePermalinkTarget(
+      PERMALINK_PAGE,
+      MCT_TABLE,
+      documentBaseFromApi(access.baseUrl),
+      views,
+      sections,
+      tables
+    );
+    if (MODE_FICHE) {
+      state.permalinkTarget.retour = pageUrl(
+        state.permalinkTarget.documentBase,
+        viewRefByName(MODE_FICHE.retour, views)
+      );
+    }
+    return state.permalinkTarget;
+  }
+
+  async function preparerModeFiche() {
+    appliquerModeFiche(Boolean(MODE_FICHE), {
+      titre: "Fiche document",
+      sousTitre: "Un document du MCT ouvert par lien, avec les actions qui le référencent."
+    });
+    if (!MODE_FICHE) return;
+    try {
+      poserLienRetour("← Retour aux documents du MCT", (await getPermalinkTarget()).retour);
+    } catch (error) {
+      setNotice(`Lien de retour indisponible : ${error?.message || error}`, true);
+    }
+  }
+
+  async function chargerHistorique() {
+    try {
+      return rowsFromTable(await grist.docApi.fetchTable("Documents_MCT_historique"));
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function renderHistory(doc) {
+    if (!MODE_FICHE) return;
+    renderHistorique(historiquePour(state.historique, "Document_concerne", [doc.id]), {
+      date: ligne => formatDate(ligne.Date, true),
+      auteur: ligne => agentLabel(validScalar(ligne.Auteur)),
+      vide: "Aucune modification enregistrée pour ce document."
+    });
+  }
+
+  async function copyTextToClipboard(text) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    if (!document.body || typeof document.execCommand !== "function") {
+      throw new Error("presse-papiers non disponible");
+    }
+    const textarea = make("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("copie refusée par le navigateur");
+  }
+
+  async function copyRecordLink(rowId, button) {
+    try {
+      const target = await getPermalinkTarget();
+      await copyTextToClipboard(recordPermalink(target, rowId));
+      button.textContent = "Lien copié ✓";
+      setNotice(`Lien de la fiche #${rowId} copié dans le presse-papiers.`);
+      window.setTimeout(() => { button.textContent = "Copier l’URL de la fiche"; }, 1500);
+    } catch (error) {
+      setNotice(`Copie du lien impossible : ${error?.message || error}`, true);
+    }
+  }
+
+  function copyRecordLinkButton(rowId) {
+    const button = make("button", "button button-secondary", "Copier l’URL de la fiche");
+    button.type = "button";
+    button.addEventListener("click", () => copyRecordLink(rowId, button));
+    return button;
+  }
+
+  function validScalar(value) {
+    if (value === null || value === undefined || value === "" || value === 0) return null;
+    if (typeof value === "string" && value.startsWith("#")) return null;
+    return value;
+  }
+
+  function refListIds(value) {
+    if (!Array.isArray(value)) return [];
+    if (value[0] === "L") return value.slice(1).filter(Number.isFinite);
+    if ((value[0] === "r" || value[0] === "R") && Array.isArray(value[2])) {
+      return value[2].filter(Number.isFinite);
+    }
+    return value.filter(Number.isFinite);
+  }
+
+  // Les colonnes ChoiceList et les RefList encore saisies en texte libre cohabitent
+  // dans ce document : on retombe sur les libellés bruts quand aucun identifiant
+  // n'est exploitable.
+  function rawTokens(value) {
+    if (Array.isArray(value)) {
+      if (value[0] === "L") return value.slice(1).map(String);
+      if (value[0] === "E") return rawTokens(value[3]);
+      return value.map(String);
+    }
+    const text = validScalar(value);
+    if (typeof text !== "string") return [];
+    if (text.trim().startsWith("[")) {
+      try { return JSON.parse(text).map(String); } catch (_) { /* texte libre */ }
+    }
+    return text.split(",").map(token => token.trim()).filter(Boolean);
+  }
+
+  function dateFromValue(value) {
+    if (!Number.isFinite(Number(value)) || Number(value) <= 0) return null;
+    const date = new Date(Number(value) * 1000);
+    return Number.isNaN(date.valueOf()) ? null : date;
+  }
+
+  function formatDate(value, withTime = false) {
+    const date = dateFromValue(value);
+    if (!date) return null;
+    return new Intl.DateTimeFormat("fr-FR", withTime
+      ? { dateStyle: "medium", timeStyle: "short" }
+      : { dateStyle: "medium" }
+    ).format(date);
+  }
+
+  function setNotice(message, error = false) {
+    elements.notice.hidden = !message;
+    elements.notice.className = `notice${error ? " error" : ""}`;
+    elements.notice.textContent = message || "";
+  }
+
+  function addOption(select, value, label) {
+    const option = make("option", "", label);
+    option.value = String(value);
+    select.appendChild(option);
+  }
+
+  function fillSelect(select, records, emptyLabel) {
+    const current = select.value;
+    select.replaceChildren();
+    addOption(select, "", emptyLabel);
+    records.forEach(record => addOption(select, record.value, record.label));
+    select.value = [...select.options].some(option => option.value === current) ? current : "";
+  }
+
+  function pill(text, className = "") {
+    return make("span", `pill ${className}`.trim(), text || "Non renseigné");
+  }
+
+  function metaValue(text) {
+    return text || "Non renseigné";
+  }
+
+  function emptyValueNode() {
+    return make("span", "muted-value", "Non renseigné");
+  }
+
+  function textValueNode(value) {
+    const text = validScalar(value);
+    return text ? make("span", "", String(text)) : emptyValueNode();
+  }
+
+  function boolValueNode(value) {
+    return make("span", "", value === true ? "Oui" : "Non");
+  }
+
+  function chipValues(values) {
+    const clean = values.filter(Boolean);
+    if (!clean.length) return emptyValueNode();
+    const container = make("span", "value-chips");
+    clean.forEach(value => container.appendChild(make("span", "value-chip", value)));
+    return container;
+  }
+
+  function linkValueNode(href, label) {
+    if (!validScalar(href)) return emptyValueNode();
+    const link = make("a", "value-link", label || href);
+    link.href = href;
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    return link;
+  }
+
+  function addInfoRow(list, label, valueNode) {
+    const row = make("div", "info-row");
+    row.appendChild(make("dt", "", label));
+    const value = make("dd");
+    value.appendChild(valueNode || emptyValueNode());
+    row.appendChild(value);
+    list.appendChild(row);
+  }
+
+  function infoGroup(title, rows) {
+    const group = make("section", "info-group");
+    group.appendChild(make("h3", "", title));
+    const list = make("dl", "info-list");
+    rows.forEach(([label, value]) => addInfoRow(list, label, value));
+    group.appendChild(list);
+    return group;
+  }
+
+  function renderDescriptionBlock(container, title, text) {
+    container.replaceChildren();
+    container.appendChild(make("h3", "", title));
+    container.appendChild(make("p", "", validScalar(text) || "Aucune information renseignée."));
+  }
+
+  function dateInputValue(value) {
+    const date = dateFromValue(value);
+    if (!date) return "";
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  function dateToGrist(value) {
+    if (!value) return null;
+    const [year, month, day] = value.split("-").map(Number);
+    return Date.UTC(year, month - 1, day) / 1000;
+  }
+
+  // Éditeur générique piloté par des descripteurs de champs :
+  // { key, label, type, span, required, options }
+  // type : text | textarea | number | date | url | bool | choice | ref | reflist | choicelist
+  const MULTI_TYPES = new Set(["reflist", "choicelist"]);
+  const SELECT_TYPES = new Set(["ref", "choice", "reflist", "choicelist"]);
+
+  function optionList(field) {
+    const options = typeof field.options === "function" ? field.options() : (field.options || []);
+    return options.map(option => (typeof option === "string" ? { value: option, label: option } : option));
+  }
+
+  function buildEditorGrid(grid, fields) {
+    grid.replaceChildren();
+    const controls = new Map();
+    for (const field of fields) {
+      const wrapper = make("label", `edit-field${field.span === 2 ? " span-2" : ""}`);
+      const caption = make("span", "", field.label);
+      if (field.required) caption.appendChild(make("b", "", " *"));
+      wrapper.appendChild(caption);
+
+      let control;
+      if (field.type === "textarea") {
+        control = make("textarea");
+        control.rows = 4;
+      } else if (SELECT_TYPES.has(field.type)) {
+        control = make("select");
+        if (MULTI_TYPES.has(field.type)) {
+          control.multiple = true;
+          control.size = 5;
+        }
+      } else {
+        control = make("input");
+        control.type = { number: "number", date: "date", url: "url", bool: "checkbox" }[field.type] || "text";
+      }
+      control.name = field.key;
+      if (field.required) control.required = true;
+      if (field.step) control.step = field.step;
+      wrapper.appendChild(control);
+
+      const hint = make("small", "", "");
+      hint.hidden = true;
+      wrapper.appendChild(hint);
+      grid.appendChild(wrapper);
+      controls.set(field.key, { field, control, hint, wrapper });
+    }
+    return controls;
+  }
+
+  // Les RefList et ChoiceList héritées de l'import contiennent parfois du texte
+  // libre : on présélectionne ce qui se raccroche à un code ou un libellé et on
+  // signale le reste sous le champ.
+  function selectedMultiValues(field, value, options, hint) {
+    const ids = field.type === "reflist" ? refListIds(value) : [];
+    if (ids.length) return new Set(ids.map(String));
+    const tokens = rawTokens(value);
+    if (!tokens.length) return new Set();
+    const index = new Map();
+    options.forEach(option => {
+      index.set(normalize(option.label), String(option.value));
+      if (option.code) index.set(normalize(option.code), String(option.value));
+    });
+    const matched = [];
+    const unknown = [];
+    tokens.forEach(token => {
+      const hit = index.get(normalize(token));
+      if (hit) matched.push(hit);
+      else unknown.push(token);
+    });
+    if (unknown.length) {
+      hint.hidden = false;
+      hint.textContent = `Valeur${unknown.length > 1 ? "s" : ""} hors référentiel, non reprise${unknown.length > 1 ? "s" : ""} : ${unknown.join(", ")}`;
+    }
+    return new Set(matched);
+  }
+
+  function fillEditorGrid(controls, record) {
+    for (const { field, control, hint } of controls.values()) {
+      const value = record ? record[field.key] : null;
+      hint.hidden = true;
+      hint.textContent = "";
+      if (field.type === "bool") {
+        control.checked = value === true;
+      } else if (MULTI_TYPES.has(field.type)) {
+        const options = optionList(field);
+        control.replaceChildren();
+        options.forEach(option => addOption(control, option.value, option.label));
+        const selected = selectedMultiValues(field, value, options, hint);
+        [...control.options].forEach(option => { option.selected = selected.has(option.value); });
+      } else if (SELECT_TYPES.has(field.type)) {
+        const current = validScalar(value) === null ? "" : String(value);
+        control.replaceChildren();
+        addOption(control, "", field.emptyLabel || "— Non défini —");
+        optionList(field).forEach(option => addOption(control, option.value, option.label));
+        if (current && ![...control.options].some(option => option.value === current)) {
+          addOption(control, current, `${current} — valeur hors référentiel`);
+        }
+        control.value = current;
+      } else if (field.type === "date") {
+        control.value = dateInputValue(value);
+      } else if (field.type === "number") {
+        // validScalar() traite 0 comme vide : un numéro à 0 doit rester lisible.
+        control.value = value === null || value === undefined || value === "" ? "" : String(value);
+      } else {
+        control.value = validScalar(value) === null ? "" : String(value);
+      }
+      control.setCustomValidity("");
+    }
+    return snapshotEditor(controls);
+  }
+
+  function editorValue(field, control) {
+    if (field.type === "bool") return control.checked === true;
+    if (MULTI_TYPES.has(field.type)) {
+      const values = [...control.options].filter(option => option.selected).map(option => option.value);
+      if (!values.length) return null;
+      return ["L", ...values.map(value => (field.type === "reflist" ? Number(value) : value))];
+    }
+    const raw = String(control.value ?? "").trim();
+    if (!raw) return null;
+    if (field.type === "ref") return Number(raw);
+    if (field.type === "number") {
+      const number = Number(raw);
+      if (!Number.isFinite(number)) throw new Error(`${field.label} : un nombre est attendu.`);
+      return number;
+    }
+    if (field.type === "date") return dateToGrist(raw);
+    return raw;
+  }
+
+  function snapshotEditor(controls) {
+    return new Map([...controls].map(([key, entry]) =>
+      [key, JSON.stringify(editorValue(entry.field, entry.control))]));
+  }
+
+  // Seuls les champs réellement modifiés partent dans l'UpdateRecord : une colonne
+  // encore remplie en texte libre n'est pas écrasée tant qu'on n'y touche pas.
+  function readEditorGrid(controls, snapshot) {
+    const update = {};
+    for (const [key, entry] of controls) {
+      const value = editorValue(entry.field, entry.control);
+      if (entry.field.required && (value === null || value === "")) {
+        entry.control.setCustomValidity(`${entry.field.label} est obligatoire.`);
+        entry.control.reportValidity();
+        throw new Error(`${entry.field.label} est obligatoire.`);
+      }
+      if (JSON.stringify(value) !== snapshot.get(key)) update[key] = value;
+    }
+    return update;
+  }
+
+  function reference(id) {
+    return state.references.get(Number(validScalar(id))) || null;
+  }
+
+  function referenceLabel(id) {
+    const row = reference(id);
+    return row?.Libelle || row?.Code || null;
+  }
+
+  function categoryFilterLabel(id) {
+    const row = reference(id);
+    return [validScalar(row?.Code), validScalar(row?.Libelle)].filter(Boolean).join(" • ") || `Référence #${id}`;
+  }
+
+  function referenceOrder(row) {
+    if (row?.Ordre === null || row?.Ordre === undefined || row?.Ordre === "") {
+      return Number.MAX_SAFE_INTEGER;
+    }
+    const order = Number(row.Ordre);
+    return Number.isFinite(order) ? order : Number.MAX_SAFE_INTEGER;
+  }
+
+  function referencesFor(domain) {
+    return [...state.references.values()]
+      .filter(row => normalize(row.Domaine) === normalize(domain) && row.Actif !== false)
+      .map(row => ({ value: row.id, label: String(row.Libelle || row.Code || `Référence #${row.id}`), order: referenceOrder(row) }))
+      .sort((left, right) => left.order - right.order || collator.compare(left.label, right.label));
+  }
+
+  function agentLabel(id) {
+    return state.agents.get(Number(validScalar(id)))?.Email || null;
+  }
+
+  function inForce(doc) {
+    return doc.Document_en_vigueur === true;
+  }
+
+  // Impacte_par_ADR_FR est une colonne de choix héritée : "false" et "" y valent Non.
+  function impactLevel(doc) {
+    const value = normalize(doc.Impacte_par_ADR_FR);
+    if (value === "oui") return "oui";
+    if (value.startsWith("a evaluer")) return "evaluer";
+    return "non";
+  }
+
+  function impactLabel(doc) {
+    return { oui: "Oui", evaluer: "À évaluer", non: "Non" }[impactLevel(doc)];
+  }
+
+  function publicationSpace(doc) {
+    return validScalar(doc.Espace_de_publication) || null;
+  }
+
+  function statusColor(doc) {
+    if (!inForce(doc)) return "#8a99a8";
+    if (impactLevel(doc) === "oui") return "#EA1105";
+    if (impactLevel(doc) === "evaluer") return "#F24B0F";
+    return "#57BC02";
+  }
+
+  function referenceSearchValues(id) {
+    const row = reference(id);
+    return row ? [row.Code, row.Libelle] : [];
+  }
+
+  const MCT_SEARCH_FIELDS = [
+    { key: "id", query: "id", label: "Identifiant", values: doc => doc.id },
+    { key: "Code", query: "code", label: "Code", values: doc => doc.Code },
+    { key: "Titre", query: "titre", label: "Titre", values: doc => doc.Titre },
+    { key: "Description", query: "description", label: "Description", values: doc => doc.Description },
+    { key: "Lien", query: "lien", label: "Lien", values: doc => doc.Lien },
+    {
+      key: "Categorie", query: "categorie", label: "Catégorie", aliases: ["catégorie de document"],
+      values: doc => referenceSearchValues(doc.Categorie),
+      suggestions: () => referencesFor("Catégorie de document").flatMap(row => [row.label, reference(row.value)?.Code])
+    },
+    {
+      key: "Type_du_document", query: "type", label: "Type du document",
+      values: doc => referenceSearchValues(doc.Type_du_document),
+      suggestions: () => referencesFor("Type de document").flatMap(row => [row.label, reference(row.value)?.Code])
+    },
+    {
+      key: "Createur_du_document", query: "createur", label: "Créateur",
+      values: doc => referenceSearchValues(doc.Createur_du_document),
+      suggestions: () => referencesFor("Créateur").flatMap(row => [row.label, reference(row.value)?.Code])
+    },
+    { key: "Numero", query: "numero", label: "Numéro", values: doc => doc.Numero },
+    { key: "No_Edition", query: "edition", label: "Numéro d’édition", values: doc => doc.No_Edition },
+    { key: "No_Version", query: "version", label: "Numéro de version", values: doc => doc.No_Version },
+    { key: "Edition_Version", query: "editionversion", label: "Édition / Version", values: doc => doc.Edition_Version },
+    {
+      key: "Interne_Externe", query: "diffusion", label: "Diffusion", aliases: ["interne externe"],
+      values: doc => doc.Interne_Externe, suggestions: () => ["Interne", "Externe"]
+    },
+    {
+      key: "Espace_de_publication", query: "publication", label: "Espace de publication",
+      values: doc => publicationSpace(doc), suggestions: () => ["GEODe", "METEOR", "Site du ministère"]
+    },
+    {
+      key: "Impacte_par_ADR_FR", query: "impact", label: "Impact ADR-FR",
+      values: doc => [doc.Impacte_par_ADR_FR, impactLabel(doc)], suggestions: () => ["Oui", "À évaluer", "Non"]
+    },
+    {
+      key: "Nature_de_l_impact_de_l_ADR_FR", query: "natureimpact", label: "Nature de l’impact ADR-FR",
+      values: doc => doc.Nature_de_l_impact_de_l_ADR_FR
+    },
+    {
+      key: "Date_de_publication_de_la_derniere_version", query: "datepublication",
+      label: "Date de publication", values: doc => searchDateValues(doc.Date_de_publication_de_la_derniere_version)
+    },
+    {
+      key: "Date_de_la_derniere_revue_du_contenu", query: "daterevue",
+      label: "Date de dernière revue", values: doc => searchDateValues(doc.Date_de_la_derniere_revue_du_contenu)
+    },
+    {
+      key: "Document_en_vigueur", query: "vigueur", label: "Vigueur",
+      values: doc => inForce(doc) ? ["Oui", "En vigueur"] : ["Non", "Retiré"],
+      suggestions: () => ["En vigueur", "Retiré"]
+    }
+  ];
+
+  function setupSearchAutocomplete(definitions) {
+    let candidates = [];
+    let activeIndex = -1;
+
+    function completionContext() {
+      const caret = elements.search.selectionStart ?? elements.search.value.length;
+      const before = elements.search.value.slice(0, caret);
+      const start = Math.max(before.lastIndexOf(" "), before.lastIndexOf("\n")) + 1;
+      const raw = before.slice(start);
+      const excluded = raw.startsWith("-");
+      const token = excluded ? raw.slice(1) : raw;
+      if (!token.startsWith("$")) return null;
+      const separator = token.indexOf(":");
+      if (separator === -1) {
+        return { kind: "field", start, caret, excluded, term: normalizeFieldName(token.slice(1)) };
+      }
+      const requested = normalizeFieldName(token.slice(1, separator));
+      const definition = definitions.find(item =>
+        [item.query, item.key, item.label, ...(item.aliases || [])]
+          .some(alias => normalizeFieldName(alias) === requested));
+      if (!definition?.suggestions) return null;
+      return { kind: "value", start, caret, excluded, definition, term: normalize(token.slice(separator + 1)) };
+    }
+
+    function choose(candidate) {
+      const context = completionContext();
+      if (!context) return;
+      const prefix = context.excluded ? "-" : "";
+      const replacement = context.kind === "field"
+        ? `${prefix}$${candidate.definition.query}:`
+        : `${prefix}$${context.definition.query}:${String(candidate.value).includes(" ") ? `"${candidate.value}"` : candidate.value} `;
+      elements.search.value = elements.search.value.slice(0, context.start) + replacement +
+        elements.search.value.slice(context.caret);
+      const caret = context.start + replacement.length;
+      elements.search.selectionStart = caret;
+      elements.search.selectionEnd = caret;
+      elements.searchSuggestions.hidden = true;
+      elements.search.focus();
+      scheduleRender();
+    }
+
+    function render() {
+      const context = completionContext();
+      candidates = [];
+      if (context?.kind === "field") {
+        candidates = definitions.filter(definition =>
+          !context.term || normalizeFieldName(`${definition.query} ${definition.label} ${definition.key}`).includes(context.term)
+        ).slice(0, 12).map(definition => ({ definition, value: definition.query, label: `$${definition.query}:`, detail: definition.label }));
+      } else if (context?.kind === "value") {
+        candidates = [...new Set(context.definition.suggestions().filter(Boolean).map(String))]
+          .filter(value => !context.term || normalize(value).includes(context.term))
+          .slice(0, 12)
+          .map(value => ({ definition: context.definition, value, label: value, detail: context.definition.label }));
+      }
+      activeIndex = -1;
+      elements.searchSuggestions.replaceChildren();
+      for (const candidate of candidates) {
+        const button = make("button", "search-suggestion");
+        button.type = "button";
+        button.setAttribute("role", "option");
+        button.appendChild(make("strong", "", candidate.label));
+        button.appendChild(make("small", "", candidate.detail));
+        button.addEventListener("mousedown", event => event.preventDefault());
+        button.addEventListener("click", () => choose(candidate));
+        elements.searchSuggestions.appendChild(button);
+      }
+      elements.searchSuggestions.hidden = candidates.length === 0;
+    }
+
+    function syncActive() {
+      [...elements.searchSuggestions.children].forEach((option, index) => {
+        option.classList.toggle("active", index === activeIndex);
+        option.setAttribute("aria-selected", index === activeIndex ? "true" : "false");
+      });
+    }
+
+    elements.search.addEventListener("input", render);
+    elements.search.addEventListener("click", render);
+    elements.search.addEventListener("blur", () => window.setTimeout(() => {
+      elements.searchSuggestions.hidden = true;
+    }, 120));
+    elements.search.addEventListener("keydown", event => {
+      if (elements.searchSuggestions.hidden) return;
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        activeIndex = (activeIndex + 1) % candidates.length;
+        syncActive();
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        activeIndex = (activeIndex - 1 + candidates.length) % candidates.length;
+        syncActive();
+      } else if ((event.key === "Enter" || event.key === "Tab") && activeIndex >= 0) {
+        event.preventDefault();
+        choose(candidates[activeIndex]);
+      } else if (event.key === "Escape") {
+        elements.searchSuggestions.hidden = true;
+      }
+    });
+  }
+
+  function filteredDocuments() {
+    if (MODE_FICHE) return state.documents;
+    let clauses;
+    try {
+      clauses = parseSearchQuery(elements.search.value, MCT_SEARCH_FIELDS);
+      elements.searchError.hidden = true;
+      elements.search.removeAttribute("aria-invalid");
+    } catch (error) {
+      elements.searchError.textContent = error.message;
+      elements.searchError.hidden = false;
+      elements.search.setAttribute("aria-invalid", "true");
+      return [];
+    }
+    const status = elements.statusFilter.value;
+    const category = elements.categoryFilter.value;
+    const type = elements.typeFilter.value;
+    const author = elements.authorFilter.value;
+    const diffusion = elements.diffusionFilter.value;
+    const impact = elements.impactFilter.value;
+
+    const visibles = state.documents.filter(doc => {
+      if (status === "active" && !inForce(doc)) return false;
+      if (status === "retired" && inForce(doc)) return false;
+      if (category && String(validScalar(doc.Categorie) || "") !== category) return false;
+      if (type && String(validScalar(doc.Type_du_document) || "") !== type) return false;
+      if (author && String(validScalar(doc.Createur_du_document) || "") !== author) return false;
+      if (diffusion && validScalar(doc.Interne_Externe) !== diffusion) return false;
+      if (impact && impactLevel(doc) !== impact) return false;
+      if (!matchesSearch(state.searchIndexes.get(doc.id), clauses)) return false;
+      return true;
+    }).sort((left, right) => collator.compare(left.Code || "", right.Code || "")
+      || collator.compare(left.Titre || "", right.Titre || ""));
+    return avecEpingle(visibles, state.epingleId, state.documents);
+  }
+
+  function reinitialiserFiltresPourLien() {
+    elements.search.value = "";
+    elements.statusFilter.value = "all";
+    elements.categoryFilter.value = "";
+    elements.typeFilter.value = "";
+    elements.authorFilter.value = "";
+    elements.diffusionFilter.value = "";
+    elements.impactFilter.value = "";
+  }
+
+  function initialiserFiltresParDefaut() {
+    reinitialiserFiltresPourLien();
+    elements.statusFilter.value = DEFAULT_STATUS_FILTER;
+  }
+
+  // Dès que l'utilisateur touche aux filtres, il reprend la main : l'épingle
+  // posée par un permalien tombe.
+  function renderApresFiltre() {
+    state.epingleId = null;
+    renderCatalogue();
+  }
+
+  function resetFilters() {
+    initialiserFiltresParDefaut();
+    renderApresFiltre();
+  }
+
+  function appliquerDocumentDemande(reveler = true) {
+    const id = Number(state.requestedId);
+    if (!Number.isInteger(id) || id <= 0 || !state.documents.some(doc => doc.id === id)) return false;
+    // Au premier chargement on ne sait pas distinguer un permalien du curseur
+    // ambiant : plutôt que de balayer les filtres, on épingle la fiche visée.
+    if (reveler) reinitialiserFiltresPourLien();
+    else if (!filteredDocuments().some(doc => doc.id === id)) state.epingleId = id;
+    state.selectedId = id;
+    state.requestedId = null;
+    return true;
+  }
+
+  function selectionnerDepuisGrist(record) {
+    const rowId = Number(record?.id);
+    if (!Number.isInteger(rowId) || rowId <= 0) return;
+    if (rowId === state.cursorSyncId) {
+      state.cursorSyncId = null;
+      return;
+    }
+    state.requestedId = rowId;
+    if (state.documents.length && state.initialized && appliquerDocumentDemande()) renderCatalogue();
+  }
+
+  function synchroniserCurseur(rowId) {
+    state.cursorSyncId = rowId;
+    Promise.resolve(grist.setCursorPos({ rowId })).catch(error => {
+      state.cursorSyncId = null;
+      setNotice(`Sélection synchronisée, mais lien Grist indisponible : ${error?.message || error}`, true);
+    });
+  }
+
+  function renderMetrics() {
+    const live = state.documents.filter(inForce);
+    const categories = new Set(live.map(doc => validScalar(doc.Categorie)).filter(Boolean));
+    elements.total.textContent = live.length.toLocaleString("fr-FR");
+    elements.categories.textContent = categories.size.toLocaleString("fr-FR");
+    elements.review.textContent = live.filter(doc => impactLevel(doc) === "evaluer").length.toLocaleString("fr-FR");
+    elements.impacted.textContent = live.filter(doc => impactLevel(doc) === "oui").length.toLocaleString("fr-FR");
+  }
+
+  function renderFilterOptions() {
+    const categories = referencesFor("Catégorie de document")
+      .map(option => ({ ...option, label: categoryFilterLabel(option.value) }));
+    fillSelect(elements.categoryFilter, categories, "Toutes les catégories");
+    fillSelect(elements.typeFilter, referencesFor("Type de document"), "Tous les types");
+    fillSelect(elements.authorFilter, referencesFor("Créateur"), "Tous les créateurs");
+  }
+
+  function renderDocumentList(documents) {
+    elements.documentList.replaceChildren();
+    elements.portfolioCount.textContent = documents.length.toLocaleString("fr-FR");
+    elements.emptyDocuments.hidden = documents.length > 0;
+    for (const doc of documents) {
+      const button = make("button", "action-item");
+      button.type = "button";
+      button.classList.toggle("selected", doc.id === state.selectedId);
+      button.style.setProperty("--status-color", statusColor(doc));
+      button.appendChild(make("span", "action-item-title", doc.Titre || `Document #${doc.id}`));
+      const meta = make("span", "action-item-meta");
+      meta.appendChild(make("span", "", metaValue(validScalar(doc.Code))));
+      meta.appendChild(make("span", "", metaValue(validScalar(doc.Edition_Version))));
+      meta.appendChild(make("span", "", metaValue(referenceLabel(doc.Categorie))));
+      if (!inForce(doc)) meta.appendChild(make("span", "", "Retiré"));
+      button.appendChild(meta);
+      button.addEventListener("click", () => {
+        state.selectedId = doc.id;
+        synchroniserCurseur(doc.id);
+        renderCatalogue();
+      });
+      elements.documentList.appendChild(button);
+    }
+  }
+
+  function renderHeader(doc) {
+    const container = elements.detailHeader;
+    container.replaceChildren();
+    container.className = "action-header";
+    container.style.setProperty("--status-color", statusColor(doc));
+
+    const copy = make("div");
+    copy.appendChild(make("span", "action-kicker", `${validScalar(doc.Code) || "DOCUMENT"} · ROW ID ${doc.id}`));
+    copy.appendChild(make("h2", "", doc.Titre || `Document #${doc.id}`));
+    copy.appendChild(make("div", "action-subline", [
+      referenceLabel(doc.Type_du_document),
+      referenceLabel(doc.Categorie),
+      referenceLabel(doc.Createur_du_document)
+    ].filter(Boolean).join(" · ") || "Classement non renseigné"));
+    container.appendChild(copy);
+
+    const controls = make("div", "header-actions");
+    const badges = make("div", "badge-row");
+    const status = pill(inForce(doc) ? "En vigueur" : "Retiré", "pill-status");
+    status.style.setProperty("--status-color", statusColor(doc));
+    badges.appendChild(status);
+    badges.appendChild(pill(validScalar(doc.Edition_Version) || "Version inconnue"));
+    if (validScalar(doc.Interne_Externe)) badges.appendChild(pill(doc.Interne_Externe));
+    if (publicationSpace(doc)) badges.appendChild(pill(publicationSpace(doc)));
+    if (impactLevel(doc) !== "non") {
+      badges.appendChild(pill(`ADR-FR : ${impactLabel(doc)}`, impactLevel(doc) === "oui" ? "pill-important" : "pill-moyen"));
+    }
+    controls.appendChild(badges);
+    const actions = make("div", "panel-heading-actions");
+    actions.appendChild(copyRecordLinkButton(doc.id));
+    if (validScalar(doc.Lien)) {
+      const open = make("a", "button button-secondary", "Ouvrir le document");
+      open.href = doc.Lien;
+      open.target = "_blank";
+      open.rel = "noreferrer";
+      actions.appendChild(open);
+    }
+    if (canManageMct()) {
+      const edit = make("button", "button button-primary", "Modifier la fiche");
+      edit.type = "button";
+      edit.addEventListener("click", () => openEditor(doc));
+      actions.appendChild(edit);
+    }
+    controls.appendChild(actions);
+    container.appendChild(controls);
+  }
+
+  function renderGroups(doc) {
+    elements.detailGroups.replaceChildren();
+    elements.detailGroups.appendChild(infoGroup("Identification", [
+      ["Code", textValueNode(doc.Code)],
+      ["Catégorie", textValueNode(referenceLabel(doc.Categorie))],
+      ["Type", textValueNode(referenceLabel(doc.Type_du_document))],
+      ["Numéro", textValueNode(Number.isFinite(Number(doc.Numero)) && doc.Numero !== null ? String(Number(doc.Numero)) : null)],
+      ["Créateur", textValueNode(referenceLabel(doc.Createur_du_document))],
+      ["Portée", textValueNode(doc.Interne_Externe)]
+    ]));
+    elements.detailGroups.appendChild(infoGroup("Publication", [
+      ["Édition / version", textValueNode(doc.Edition_Version)],
+      ["Dernière publication", textValueNode(formatDate(doc.Date_de_publication_de_la_derniere_version))],
+      ["Dernière revue", textValueNode(formatDate(doc.Date_de_la_derniere_revue_du_contenu))],
+      ["Espace", textValueNode(publicationSpace(doc))],
+      ["Lien", linkValueNode(doc.Lien, "Ouvrir")],
+      ["En vigueur", boolValueNode(doc.Document_en_vigueur)]
+    ]));
+    elements.detailGroups.appendChild(infoGroup("Impact ADR-FR", [
+      ["Impacté", make("span", "", impactLabel(doc))],
+      ["Nature de l’impact", textValueNode(doc.Nature_de_l_impact_de_l_ADR_FR)],
+      ["Actions rattachées", make("span", "", String((state.actionsByDocument.get(doc.id) || []).length))]
+    ]));
+    renderDescriptionBlock(elements.description, "Description", doc.Description);
+  }
+
+  function actionStatusColor(action) {
+    const label = normalize(referenceLabel(action.Avancement));
+    if (label.includes("terminee")) return "#57BC02";
+    if (label.includes("abandonnee")) return "#8a99a8";
+    if (label.includes("99%")) return "#0F468C";
+    if (label.includes("75%")) return "#F24B0F";
+    if (label.includes("50%")) return "#E8A100";
+    if (label.includes("25%")) return "#4971A6";
+    return "#8a99a8";
+  }
+
+  function renderRelatedActions(doc) {
+    const actions = state.actionsByDocument.get(doc.id) || [];
+    elements.relatedList.replaceChildren();
+    elements.relatedCount.textContent = actions.length.toLocaleString("fr-FR");
+    elements.emptyRelated.hidden = actions.length > 0;
+    for (const action of actions) {
+      const card = make("article", "subaction-card");
+      card.style.setProperty("--status-color", actionStatusColor(action));
+      const top = make("div", "subaction-topline");
+      const status = pill(referenceLabel(action.Avancement), "pill-status");
+      status.style.setProperty("--status-color", actionStatusColor(action));
+      top.appendChild(status);
+      top.appendChild(make("span", "action-kicker", `#${action.id}`));
+      card.appendChild(top);
+      card.appendChild(make("h3", "", action.Titre || `Action #${action.id}`));
+      const meta = make("div", "subaction-meta");
+      meta.appendChild(make("span", "", metaValue(agentLabel(action.Responsable))));
+      meta.appendChild(make("span", "", action.Prochaine_echeance ? `Échéance ${formatDate(action.Prochaine_echeance)}` : "Sans échéance"));
+      if (action.Priorite) meta.appendChild(make("span", "", action.Priorite));
+      card.appendChild(meta);
+      elements.relatedList.appendChild(card);
+    }
+  }
+
+  function renderCatalogue() {
+    const documents = filteredDocuments();
+    if (!documents.some(doc => doc.id === state.selectedId)) {
+      // Sur la page fiche, se rabattre sur le premier document afficherait une
+      // fiche que personne n'a demandée : mieux vaut l'état vide.
+      state.selectedId = MODE_FICHE ? null : (documents[0]?.id || null);
+    }
+    renderDocumentList(documents);
+    const doc = state.documents.find(candidate => candidate.id === state.selectedId);
+    if (!doc) {
+      elements.detailHeader.replaceChildren();
+      elements.detailGroups.replaceChildren();
+      elements.description.replaceChildren();
+      elements.relatedList.replaceChildren();
+      elements.relatedCount.textContent = "0";
+      elements.emptyRelated.hidden = true;
+      elements.historyPanel.hidden = true;
+      return;
+    }
+    renderHeader(doc);
+    renderGroups(doc);
+    renderRelatedActions(doc);
+    renderHistory(doc);
+  }
+
+  // Code, Edition_Version, Espace_de_publication et Interne_Externe sont des
+  // formules : elles se recalculent, on ne les propose pas à la saisie.
+  const editorFields = [
+    { key: "Titre", label: "Titre", type: "text", required: true, span: 2 },
+    { key: "Createur_du_document", label: "Créateur", type: "ref", options: () => referencesFor("Créateur") },
+    { key: "Categorie", label: "Catégorie", type: "ref", options: () => referencesFor("Catégorie de document") },
+    { key: "Type_du_document", label: "Type", type: "ref", options: () => referencesFor("Type de document") },
+    { key: "Numero", label: "Numéro", type: "number", step: "1" },
+    { key: "No_Edition", label: "N° d’édition", type: "number", step: "1" },
+    { key: "No_Version", label: "N° de version", type: "number", step: "1" },
+    { key: "Lien", label: "Lien", type: "url", span: 2 },
+    { key: "Date_de_publication_de_la_derniere_version", label: "Dernière publication", type: "date" },
+    { key: "Date_de_la_derniere_revue_du_contenu", label: "Dernière revue du contenu", type: "date" },
+    { key: "Impacte_par_ADR_FR", label: "Impacté par l’ADR-FR", type: "choice", options: ["Oui", "A évaluer", "Non"] },
+    { key: "Document_en_vigueur", label: "Document en vigueur", type: "bool" },
+    { key: "Nature_de_l_impact_de_l_ADR_FR", label: "Nature de l’impact ADR-FR", type: "textarea", span: 2 },
+    { key: "Description", label: "Description", type: "textarea", span: 2 }
+  ];
+
+  let editorControls = null;
+  let editorSnapshot = null;
+
+  function openEditor(doc) {
+    editorControls = buildEditorGrid(elements.editGrid, editorFields);
+    editorSnapshot = fillEditorGrid(editorControls, doc);
+    elements.editKicker.textContent = `${validScalar(doc.Code) || "DOCUMENT"} · ROW ID ${doc.id}`;
+    elements.editTitle.textContent = doc.Titre || `Document #${doc.id}`;
+    elements.saveEdit.disabled = false;
+    elements.saveEdit.textContent = "Enregistrer";
+    elements.editDialog.showModal();
+  }
+
+  // Ce que l'historique affiche : des libellés, pas des Row IDs.
+  function valeurLisible(field, valeur) {
+    if (valeur === null || valeur === undefined || valeur === "") return "";
+    if (field.type === "bool") return valeur === true ? "Oui" : "Non";
+    if (field.type === "ref") return referenceLabel(valeur) || "";
+    if (field.type === "date") return dateInputValue(valeur);
+    return String(valeur);
+  }
+
+  // readEditorGrid ne livre que les champs réellement modifiés : chacun donne sa ligne.
+  function lignesHistorique(docId, avant, apres) {
+    return editorFields
+      .filter(field => field.key in apres)
+      .map(field => ({
+        Document_concerne: docId,
+        Operation: "Modification",
+        Champ: field.label,
+        Avant: valeurLisible(field, (avant || {})[field.key]),
+        Apres: valeurLisible(field, apres[field.key])
+      }));
+  }
+
+  // Auteur et date sont renseignés par Grist depuis la session : le widget ne
+  // les envoie pas, et ne peut donc pas les falsifier.
+  async function tracer(docId, avant, apres) {
+    const lignes = lignesHistorique(docId, avant, apres);
+    if (!lignes.length) return "";
+    const colonnes = {};
+    for (const cle of Object.keys(lignes[0])) colonnes[cle] = lignes.map(ligne => ligne[cle]);
+    try {
+      await grist.docApi.applyUserActions([
+        ["BulkAddRecord", "Documents_MCT_historique", lignes.map(() => null), colonnes]
+      ]);
+      return "";
+    } catch (error) {
+      return ` (historique non enregistré : ${error?.message || error})`;
+    }
+  }
+
+  async function submitEditor(event) {
+    event.preventDefault();
+    if (state.saving || !state.selectedId || !editorControls) return;
+    if (!elements.editForm.checkValidity()) {
+      elements.editForm.reportValidity();
+      return;
+    }
+    let update;
+    try {
+      update = readEditorGrid(editorControls, editorSnapshot);
+    } catch (error) {
+      setNotice(`Modification impossible : ${error?.message || error}`, true);
+      return;
+    }
+    if (!Object.keys(update).length) {
+      elements.editDialog.close();
+      setNotice("Aucune modification à enregistrer.");
+      return;
+    }
+
+    state.saving = true;
+    elements.saveEdit.disabled = true;
+    elements.saveEdit.textContent = "Enregistrement…";
+    const docId = state.selectedId;
+    const avant = state.documents.find(candidate => candidate.id === docId) || null;
+    try {
+      await grist.docApi.applyUserActions([["UpdateRecord", MCT_TABLE, docId, update]]);
+      const trace = await tracer(docId, avant, update);
+      elements.editDialog.close();
+      await loadData();
+      setNotice(`Document #${docId} mis à jour. Le code et l’espace de publication sont recalculés par Grist.${trace}`);
+    } catch (error) {
+      setNotice(`Modification impossible : ${error?.message || error}`, true);
+    } finally {
+      state.saving = false;
+      elements.saveEdit.disabled = false;
+      elements.saveEdit.textContent = "Enregistrer";
+    }
+  }
+
+  async function loadData() {
+    if (state.loading) return;
+    state.loading = true;
+    elements.refresh.disabled = true;
+    setNotice("Actualisation du corpus documentaire…");
+    try {
+      const [documents, references, agents, actions] = await Promise.all([
+        grist.docApi.fetchTable(MCT_TABLE),
+        grist.docApi.fetchTable("Referentiels"),
+        grist.docApi.fetchTable("Agents"),
+        grist.docApi.fetchTable("Actions")
+      ]);
+      state.documents = rowsFromTable(documents);
+      // L'historique n'est lu que par la page fiche, seule à l'afficher, et son
+      // refus par les règles d'accès ne doit pas emporter le reste du chargement.
+      state.historique = MODE_FICHE ? await chargerHistorique() : [];
+      state.references = new Map(rowsFromTable(references).map(row => [row.id, row]));
+      state.agents = new Map(rowsFromTable(agents).map(row => [row.id, row]));
+      state.searchIndexes = new Map(state.documents.map(doc =>
+        [doc.id, buildSearchIndex(doc, MCT_SEARCH_FIELDS)]));
+
+      state.actionsByDocument = new Map();
+      for (const action of rowsFromTable(actions)) {
+        for (const id of refListIds(action.Elements_du_MCT_concerne)) {
+          if (!state.actionsByDocument.has(id)) state.actionsByDocument.set(id, []);
+          state.actionsByDocument.get(id).push(action);
+        }
+      }
+      for (const bucket of state.actionsByDocument.values()) {
+        bucket.sort((left, right) => collator.compare(left.Titre || "", right.Titre || ""));
+      }
+
+      renderFilterOptions();
+      renderMetrics();
+      appliquerDocumentDemande(state.initialized);
+      renderCatalogue();
+      state.initialized = true;
+      elements.workspace.hidden = false;
+      setNotice(state.epingleId
+        ? "Fiche ouverte par lien : elle sort des filtres par défaut de la page."
+        : "");
+    } catch (error) {
+      setNotice(`Corpus documentaire indisponible : ${error?.message || error}`, true);
+    } finally {
+      state.loading = false;
+      elements.refresh.disabled = false;
+    }
+  }
+
+  let filterTimer = null;
+  function scheduleRender() {
+    state.epingleId = null;
+    window.clearTimeout(filterTimer);
+    filterTimer = window.setTimeout(renderCatalogue, 100);
+  }
+
+  function closeDetailsOutside(details, target) {
+    for (const detail of details) {
+      if (detail.open && !detail.contains(target)) detail.open = false;
+    }
+  }
+
+  function searchHelpGeometry(anchorRect, popoverRect, viewportWidth, viewportHeight, margin = 12, gap = 9) {
+    const width = Math.min(410, Math.max(0, viewportWidth - margin * 2));
+    const height = Math.min(Number(popoverRect.height) || 0, Math.max(0, viewportHeight - margin * 2));
+    const maxLeft = Math.max(margin, viewportWidth - width - margin);
+    const left = Math.min(Math.max(anchorRect.right - width, margin), maxLeft);
+    const below = anchorRect.bottom + gap;
+    const above = anchorRect.top - gap - height;
+    let top = below;
+    if (below + height > viewportHeight - margin) {
+      top = above >= margin
+        ? above
+        : Math.max(margin, viewportHeight - height - margin);
+    }
+    return { left, top, width, maxHeight: Math.max(0, viewportHeight - margin * 2) };
+  }
+
+  function positionSearchHelp(help, view) {
+    const summary = help.querySelector("summary");
+    const popover = help.querySelector(".search-help-popover");
+    if (!summary || !popover) return;
+    popover.style.width = `${Math.min(410, Math.max(0, view.innerWidth - 24))}px`;
+    popover.style.maxHeight = `${Math.max(0, view.innerHeight - 24)}px`;
+    const geometry = searchHelpGeometry(
+      summary.getBoundingClientRect(),
+      popover.getBoundingClientRect(),
+      view.innerWidth,
+      view.innerHeight
+    );
+    popover.style.left = `${Math.round(geometry.left)}px`;
+    popover.style.top = `${Math.round(geometry.top)}px`;
+  }
+
+  function setupSearchHelpPositioning(root, view) {
+    const helps = [...root.querySelectorAll(".search-help")];
+    if (!helps.length) return;
+    let frame = null;
+    const reposition = () => {
+      frame = null;
+      for (const help of helps) {
+        if (help.open) positionSearchHelp(help, view);
+      }
+    };
+    const schedule = () => {
+      if (frame === null) frame = view.requestAnimationFrame(reposition);
+    };
+    for (const help of helps) {
+      help.addEventListener("toggle", () => {
+        if (help.open) positionSearchHelp(help, view);
+      });
+    }
+    view.addEventListener("resize", schedule);
+    view.addEventListener("scroll", schedule, true);
+  }
+
+  function setupDismissibleDetails(root) {
+    const details = [...root.querySelectorAll(".search-help")];
+    root.addEventListener("click", event => closeDetailsOutside(details, event.target));
+    root.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeDetailsOutside(details, null);
+    });
+  }
+
+  elements.search.addEventListener("input", scheduleRender);
+  [
+    elements.statusFilter,
+    elements.categoryFilter,
+    elements.typeFilter,
+    elements.authorFilter,
+    elements.diffusionFilter,
+    elements.impactFilter
+  ].forEach(select => select.addEventListener("change", renderApresFiltre));
+  elements.resetFilters.addEventListener("click", resetFilters);
+  elements.refresh.addEventListener("click", loadData);
+  elements.editForm.addEventListener("submit", submitEditor);
+  elements.closeEdit.addEventListener("click", () => elements.editDialog.close());
+  elements.cancelEdit.addEventListener("click", () => elements.editDialog.close());
+  setupSearchAutocomplete(MCT_SEARCH_FIELDS);
+  setupDismissibleDetails(document);
+  setupSearchHelpPositioning(document, window);
+  document.addEventListener("r3:capabilities-ready", renderCatalogue);
+
+  initialiserFiltresParDefaut();
+  grist.ready({ requiredAccess: "full", allowSelectBy: true });
+  preparerModeFiche();
+  grist.onRecord(selectionnerDepuisGrist);
+  loadData();
+})();
+
+</script>
+</body>
+</html>
