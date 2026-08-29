@@ -1489,10 +1489,11 @@
   async function loadBell() {
     if (!elements.bell || !state.capabilities?.activity) return;
     const table = await grist.docApi.fetchTable("Activite");
-    // Un propriétaire voit toutes les lignes : la cloche ne montre que les
-    // siennes, comme les ACL le font pour un agent.
+    // Un propriétaire voit toutes les lignes de la table ; tant qu'il n'a pas
+    // choisi son identité, la cloche ne montre rien plutôt que l'activité de
+    // tout le monde. Pour un agent, les ACL ont déjà filtré côté serveur.
     state.bellRows = views.rowsFromTable(table)
-      .filter(row => !state.agentId || Number(row.Agent) === Number(state.agentId));
+      .filter(row => state.agentId !== null && Number(row.Agent) === Number(state.agentId));
     const pageUrl = activityPageUrl();
     elements.bellPage.hidden = !pageUrl;
     if (pageUrl) elements.bellPage.href = pageUrl;
