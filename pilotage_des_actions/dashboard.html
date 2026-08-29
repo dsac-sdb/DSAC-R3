@@ -4616,14 +4616,21 @@
 
   // Auteur et date sont renseignes par Grist depuis la session : le widget ne
   // les envoie pas, et ne peut donc pas les falsifier.
-  async function tracerLignes(lignes) {
-    if (!lignes.length) return "";
+  function actionHistorique(lignes) {
+    if (!lignes.length) return null;
     const colonnes = {};
     for (const cle of Object.keys(lignes[0])) colonnes[cle] = lignes.map(ligne => ligne[cle]);
+    return ["BulkAddRecord", "Actions_historique", lignes.map(() => null), colonnes];
+  }
+
+  // Reserve aux traces qui ne peuvent pas rejoindre le lot principal (creation,
+  // pieces jointes) : Grist peut recharger l'iframe apres une ecriture, et un
+  // appel separe meurt alors sans trace (constaté le 2026-08-29 sur Agents).
+  async function tracerLignes(lignes) {
+    const action = actionHistorique(lignes);
+    if (!action) return "";
     try {
-      await grist.docApi.applyUserActions([
-        ["BulkAddRecord", "Actions_historique", lignes.map(() => null), colonnes]
-      ]);
+      await grist.docApi.applyUserActions([action]);
       return "";
     } catch (error) {
       return ` (historique non enregistré : ${error?.message || error})`;
@@ -4720,7 +4727,26 @@
           state.selectedSubId = null;
         }
       } else {
-        await grist.docApi.applyUserActions([["UpdateRecord", "Actions", actionId, update]]);
+        // Update, cascade et historiques dans le meme lot : un rechargement
+        // d'iframe apres l'ecriture ne peut plus perdre les traces, et une
+        // cascade qui echoue n'ecrit plus une action sans ses sous-actions.
+        const lot = [["UpdateRecord", "Actions", actionId, update]];
+        if (cascade.length) {
+          lot.push(["BulkUpdateRecord", "Actions",
+            cascade.map(sous => sous.id), {
+              Avancement: cascade.map(() => update.Avancement),
+              Date_de_fin: cascade.map(sous => dateDeFinAuto(update.Avancement, sous))
+            }]);
+        }
+        const histo = actionHistorique([
+          ...lignesHistorique(actionId, state.editingSnapshot, update),
+          ...cascade.flatMap(sous => lignesHistorique(sous.id, sous, {
+            Avancement: update.Avancement,
+            Date_de_fin: dateDeFinAuto(update.Avancement, sous)
+          }))
+        ]);
+        if (histo) lot.push(histo);
+        await grist.docApi.applyUserActions(lot);
         // Un rattachement modifie deplace l'action dans l'arbre : la selection la suit,
         // sinon le panneau se rabat sur la premiere action de la liste.
         if (comparable("Action_parente", state.editingSnapshot?.Action_parente) !==
@@ -4729,25 +4755,12 @@
           state.selectedSubId = parentId ? actionId : null;
         }
       }
-      if (cascade.length) {
-        await grist.docApi.applyUserActions([["BulkUpdateRecord", "Actions",
-          cascade.map(sous => sous.id), {
-            Avancement: cascade.map(() => update.Avancement),
-            Date_de_fin: cascade.map(sous => dateDeFinAuto(update.Avancement, sous))
-          }]]);
-      }
       actionPersisted = true;
       if (estTerminee(update.Avancement) && (creating || !estTerminee(state.editingSnapshot?.Avancement))) {
         jouerCarillon();
       }
-      // L'action est ecrite : sa trace part avant la synchronisation des pieces
-      // jointes, sinon un echec de celle-ci laisserait la modification sans
-      // ligne d'historique.
-      const trace = await tracer(savedId, creating ? null : state.editingSnapshot, update);
-      const traceCascade = await tracerLignes(cascade.flatMap(sous => lignesHistorique(sous.id, sous, {
-        Avancement: update.Avancement,
-        Date_de_fin: dateDeFinAuto(update.Avancement, sous)
-      })));
+      // La creation reste en deux temps : pas de Row ID avant l'AddRecord.
+      const trace = creating ? await tracer(savedId, null, update) : "";
       const resources = await syncActionResources(savedId, resourceDrafts);
       const traceRessources = await tracerRessources(savedId, resources.avant, resources.apres);
       elements.editDialog.close();
@@ -4764,8 +4777,8 @@
           ? `Sous-action #${savedId} créée et liée à l’action #${parentId}.`
           : `Action #${savedId} créée.`)
         : `Action #${actionId} mise à jour.`) + cascadeNotice + resourceNotice +
-        trace + traceCascade + traceRessources,
-      Boolean(trace || traceCascade || traceRessources));
+        trace + traceRessources,
+      Boolean(trace || traceRessources));
     } catch (error) {
       if (actionPersisted) {
         elements.editDialog.close();

@@ -2746,19 +2746,11 @@ globalThis.R3ModeFiche = { retour: "📚 R3-GEN-L1 • Documents du MCT" };
 
   // Auteur et date sont renseignés par Grist depuis la session : le widget ne
   // les envoie pas, et ne peut donc pas les falsifier.
-  async function tracer(docId, avant, apres) {
-    const lignes = lignesHistorique(docId, avant, apres);
-    if (!lignes.length) return "";
+  function actionHistorique(lignes) {
+    if (!lignes.length) return null;
     const colonnes = {};
     for (const cle of Object.keys(lignes[0])) colonnes[cle] = lignes.map(ligne => ligne[cle]);
-    try {
-      await grist.docApi.applyUserActions([
-        ["BulkAddRecord", "Documents_MCT_historique", lignes.map(() => null), colonnes]
-      ]);
-      return "";
-    } catch (error) {
-      return ` (historique non enregistré : ${error?.message || error})`;
-    }
+    return ["BulkAddRecord", "Documents_MCT_historique", lignes.map(() => null), colonnes];
   }
 
   async function submitEditor(event) {
@@ -2787,11 +2779,15 @@ globalThis.R3ModeFiche = { retour: "📚 R3-GEN-L1 • Documents du MCT" };
     const docId = state.selectedId;
     const avant = state.documents.find(candidate => candidate.id === docId) || null;
     try {
-      await grist.docApi.applyUserActions([["UpdateRecord", MCT_TABLE, docId, update]]);
-      const trace = await tracer(docId, avant, update);
+      // Update et historique dans le même lot : un rechargement d'iframe après
+      // l'écriture ne peut plus perdre la trace (cf. annuaire, 2026-08-29).
+      const lot = [["UpdateRecord", MCT_TABLE, docId, update]];
+      const histo = actionHistorique(lignesHistorique(docId, avant, update));
+      if (histo) lot.push(histo);
+      await grist.docApi.applyUserActions(lot);
       elements.editDialog.close();
       await loadData();
-      setNotice(`Document #${docId} mis à jour. Le code et l’espace de publication sont recalculés par Grist.${trace}`);
+      setNotice(`Document #${docId} mis à jour. Le code et l’espace de publication sont recalculés par Grist.`);
     } catch (error) {
       setNotice(`Modification impossible : ${error?.message || error}`, true);
     } finally {

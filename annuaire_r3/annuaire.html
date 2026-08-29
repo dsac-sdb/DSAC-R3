@@ -3182,15 +3182,23 @@
 
   // Auteur et date sont renseignés par Grist depuis la session : le widget ne
   // les envoie pas, et ne peut donc pas les falsifier.
-  async function tracer(agentId, avant, apres) {
-    const lignes = lignesHistorique(agentId, avant, apres);
-    if (!lignes.length) return "";
+  function actionHistorique(lignes) {
+    if (!lignes.length) return null;
     const colonnes = {};
     for (const cle of Object.keys(lignes[0])) colonnes[cle] = lignes.map(ligne => ligne[cle]);
+    return ["BulkAddRecord", "Agents_historique", lignes.map(() => null), colonnes];
+  }
+
+  // Réservé à la création : Grist peut recharger l'iframe sitôt une écriture
+  // sur Agents appliquée (constaté le 2026-08-29, la table alimente les règles
+  // d'accès), et ce second appel meurt alors sans trace. Une modification passe
+  // donc par le lot atomique de submitEditor ; seule la création garde ce
+  // deux-temps, faute de Row ID avant l'AddRecord.
+  async function tracer(agentId, avant, apres) {
+    const action = actionHistorique(lignesHistorique(agentId, avant, apres));
+    if (!action) return "";
     try {
-      await grist.docApi.applyUserActions([
-        ["BulkAddRecord", "Agents_historique", lignes.map(() => null), colonnes]
-      ]);
+      await grist.docApi.applyUserActions([action]);
       return "";
     } catch (error) {
       return ` (historique non enregistré : ${error?.message || error})`;
@@ -3241,9 +3249,14 @@
         // Le nouvel agent est révélé même si les filtres courants l'excluent.
         state.requestedId = savedId;
       } else {
-        await grist.docApi.applyUserActions([["UpdateRecord", "Agents", agentId, update]]);
+        // Update et historique dans le même lot : le rechargement d'iframe qui
+        // suit une écriture sur Agents ne peut plus les séparer.
+        const lot = [["UpdateRecord", "Agents", agentId, update]];
+        const histo = actionHistorique(lignesHistorique(agentId, avant, update));
+        if (histo) lot.push(histo);
+        await grist.docApi.applyUserActions(lot);
       }
-      const trace = await tracer(savedId, avant, update);
+      const trace = creating ? await tracer(savedId, null, update) : "";
       closeEditor();
       await loadData();
       setNotice((creating ? `Agent #${savedId} créé.` : `Agent #${savedId} mis à jour.`) + trace);
