@@ -579,7 +579,7 @@
       <div class="panel-heading sticky-heading">
         <div>
           <span class="section-number">SÉLECTION</span>
-          <h2 id="portfolio-title">Actions parentes</h2>
+          <h2 id="portfolio-title">Actions</h2>
         </div>
         <div class="panel-heading-actions">
           <strong id="portfolio-count" class="count-badge">—</strong>
@@ -606,67 +606,37 @@
             <h2 id="subactions-title">Sous-actions</h2>
           </div>
           <div class="panel-heading-actions">
-            <strong id="subaction-count" class="count-badge">0</strong>
-          <button id="add-subaction-button" class="button button-secondary" type="button" data-r3-capability="gestionActions">
+            <strong id="subaction-count" class="count-badge" title="Ouvertes / total">0</strong>
+            <button id="add-subaction-button" class="button button-secondary" type="button" data-r3-capability="gestionActions">
               <span aria-hidden="true">＋</span> Ajouter une sous-action
             </button>
           </div>
         </div>
         <div id="subaction-list" class="subaction-list"></div>
-        <div id="empty-subactions" class="empty-state" hidden>Aucune sous-action associée.</div>
+        <div id="empty-subactions" class="empty-state" hidden>Aucune sous-action. Les responsables des sous-actions ouvertes sont les contributeurs actifs de l’action.</div>
       </section>
 
-      <article id="subaction-detail" class="subaction-detail panel" hidden>
-        <div id="subaction-detail-header"></div>
-        <div id="subaction-detail-groups" class="action-groups"></div>
-        <section id="subaction-description-block" class="description-block"></section>
+      <article class="panel comments-panel" aria-label="Commentaires">
+        <div class="panel-heading">
+          <div>
+            <span class="section-number">ÉCHANGES</span>
+            <h2>Commentaires de l’action</h2>
+          </div>
+          <strong id="parent-comment-count" class="count-badge">0</strong>
+        </div>
+        <form id="parent-comment-form" class="comment-form">
+          <label>
+            <span>Nouveau commentaire</span>
+            <div class="autocomplete">
+              <textarea name="contenu" rows="3" placeholder="Ajouter une information, une décision ou un point d’attention…" required
+                aria-autocomplete="list" aria-controls="parent-mention-suggestions"></textarea>
+              <div id="parent-mention-suggestions" class="autocomplete-menu" role="listbox" hidden></div>
+            </div>
+          </label>
+          <button class="button button-primary" type="submit">Publier</button>
+        </form>
+        <div id="parent-comments" class="comments-list"></div>
       </article>
-
-      <section class="comments-grid" aria-label="Commentaires">
-        <article class="panel comments-panel">
-          <div class="panel-heading">
-            <div>
-              <span class="section-number">ÉCHANGES</span>
-              <h2>Commentaires de l’action</h2>
-            </div>
-            <strong id="parent-comment-count" class="count-badge">0</strong>
-          </div>
-          <form id="parent-comment-form" class="comment-form">
-            <label>
-              <span>Nouveau commentaire</span>
-              <div class="autocomplete">
-                <textarea name="contenu" rows="3" placeholder="Ajouter une information, une décision ou un point d’attention…" required
-                  aria-autocomplete="list" aria-controls="parent-mention-suggestions"></textarea>
-                <div id="parent-mention-suggestions" class="autocomplete-menu" role="listbox" hidden></div>
-              </div>
-            </label>
-            <button class="button button-primary" type="submit">Publier</button>
-          </form>
-          <div id="parent-comments" class="comments-list"></div>
-        </article>
-
-        <article class="panel comments-panel">
-          <div class="panel-heading">
-            <div>
-              <span class="section-number">SOUS-ACTION SÉLECTIONNÉE</span>
-              <h2 id="sub-comments-title">Commentaires</h2>
-            </div>
-            <strong id="sub-comment-count" class="count-badge">0</strong>
-          </div>
-          <form id="sub-comment-form" class="comment-form">
-            <label>
-              <span>Nouveau commentaire</span>
-              <div class="autocomplete">
-                <textarea name="contenu" rows="3" placeholder="Commenter cette sous-action…" required
-                  aria-autocomplete="list" aria-controls="sub-mention-suggestions"></textarea>
-                <div id="sub-mention-suggestions" class="autocomplete-menu" role="listbox" hidden></div>
-              </div>
-            </label>
-            <button class="button button-primary" type="submit">Publier</button>
-          </form>
-          <div id="sub-comments" class="comments-list"></div>
-        </article>
-      </section>
 
       <section id="history-panel" class="panel history-panel" aria-labelledby="history-title" hidden>
         <div class="panel-heading">
@@ -781,17 +751,6 @@
           </div>
           <small>La liste reprend les étiquettes déjà utilisées sur les actions.</small>
         </div>
-        <div class="edit-field span-2">
-          <label for="edit-action-parente">Action parente</label>
-          <div class="autocomplete token-input">
-            <div id="edit-action-parente-tokens" class="token-input-values" aria-live="polite"></div>
-            <input id="edit-action-parente" name="action_parente" type="text" autocomplete="off"
-              aria-autocomplete="list" aria-controls="edit-action-parente-suggestions"
-              placeholder="Rechercher une action principale…" />
-            <div id="edit-action-parente-suggestions" class="autocomplete-menu" role="listbox" hidden></div>
-          </div>
-          <small id="edit-action-parente-hint">Laisser vide pour une action principale. Une action qui porte déjà des sous-actions ne peut pas être rattachée.</small>
-        </div>
         <label class="edit-field span-2">
           <span>Visibilité</span>
           <select name="visibilite" multiple size="6"></select>
@@ -812,6 +771,54 @@
       <footer class="dialog-actions">
         <button id="cancel-edit" class="button button-secondary" type="button">Annuler</button>
         <button id="save-edit" class="button button-primary" type="submit">Enregistrer</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="subaction-dialog" class="edit-dialog subaction-dialog" aria-labelledby="subaction-dialog-title">
+    <form id="subaction-form" method="dialog" novalidate>
+      <header class="dialog-header">
+        <div>
+          <span id="subaction-dialog-kicker" class="section-number">SOUS-ACTION</span>
+          <h2 id="subaction-dialog-title">Ajouter une sous-action</h2>
+        </div>
+        <button id="close-subaction" class="dialog-close" type="button" aria-label="Fermer">×</button>
+      </header>
+
+      <div class="edit-grid">
+        <label class="edit-field span-2">
+          <span>Description <b>*</b></span>
+          <input name="description" type="text" maxlength="500" required placeholder="Ce qu’il y a à faire, en une ligne" />
+        </label>
+        <div class="edit-field span-2">
+          <label for="subaction-responsable">Responsable</label>
+          <div id="subaction-responsable-autocomplete" class="autocomplete agent-single-input">
+            <div id="subaction-responsable-avatar" class="agent-selected-avatar" hidden></div>
+            <input id="subaction-responsable" name="responsable" type="text" autocomplete="off"
+              aria-autocomplete="list" aria-controls="subaction-responsable-suggestions"
+              placeholder="Rechercher dans l’annuaire…" />
+            <div id="subaction-responsable-suggestions" class="autocomplete-menu" role="listbox" hidden></div>
+          </div>
+          <small>Tant que la sous-action est ouverte, cette personne est contributrice active de l’action ; une fois close, ancienne contributrice.</small>
+        </div>
+        <label class="edit-field">
+          <span>Statut</span>
+          <select name="statut">
+            <option value="Ouvert">Ouvert</option>
+            <option value="Clos">Clos</option>
+            <option value="Abandonné">Abandonné</option>
+          </select>
+        </label>
+        <label class="edit-field">
+          <span>Échéance</span>
+          <input name="echeance" type="date" />
+        </label>
+      </div>
+
+      <footer class="dialog-actions">
+        <button id="delete-subaction" class="button button-danger" type="button" hidden>Supprimer</button>
+        <button id="cancel-subaction" class="button button-secondary" type="button">Annuler</button>
+        <button id="save-subaction" class="button button-primary" type="submit">Enregistrer</button>
       </footer>
     </form>
   </dialog>
@@ -1216,18 +1223,32 @@
 
   .subactions-panel,
   .comments-panel { padding: 19px; }
-  .subaction-detail { overflow: hidden; }
-  .subaction-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .subaction-card { position: relative; display: grid; gap: 9px; padding: 15px; border: 1px solid var(--line); border-radius: 10px; background: #fafbfd; cursor: pointer; }
-  .subaction-card::before { position: absolute; inset: 0 auto 0 0; width: 4px; border-radius: 10px 0 0 10px; background: var(--status-color, var(--grey)); content: ""; }
-  .subaction-card:hover { border-color: var(--blue-mid); background: #ffffff; }
-  .subaction-card.selected { border-color: var(--blue); background: var(--blue-soft); box-shadow: inset 0 0 0 1px var(--blue); }
-  .subaction-topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .subaction-card h3 { margin: 0; font-size: 13px; line-height: 1.35; }
-  .subaction-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; color: var(--muted); font-size: 10px; }
-  .subaction-description { margin: 0; color: #33465e; font-size: 10px; line-height: 1.45; }
+  .subaction-list { display: grid; gap: 7px; }
+  .subaction-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(150px, auto) minmax(120px, auto) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px 10px 16px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: #fafbfd;
+  }
+  .subaction-row::before { position: absolute; inset: 0 auto 0 0; width: 4px; border-radius: 9px 0 0 9px; background: var(--status-color, var(--grey)); content: ""; }
+  .subaction-row.is-closed .subaction-description { color: var(--muted); text-decoration: line-through; }
+  .subaction-description { min-width: 0; overflow-wrap: anywhere; font-size: 12px; font-weight: 650; }
+  .subaction-owner { display: inline-flex; align-items: center; gap: 7px; min-width: 0; color: var(--muted); font-size: 10px; }
+  .subaction-owner .agent-avatar { width: 24px; height: 24px; flex-basis: 24px; font-size: 8px; }
+  .subaction-owner > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .subaction-deadline { color: var(--muted); font-size: 10px; white-space: nowrap; }
+  .subaction-deadline.is-overdue { color: #b60d03; font-weight: 750; }
+  .button-small { min-height: 30px; padding: 4px 9px; font-size: 10px; }
+  .subaction-dialog { width: min(640px, calc(100vw - 28px)); }
+  .button-danger { border-color: #d8aaa7; background: #ffffff; color: var(--red); }
+  .button-danger:hover:not(:disabled) { background: var(--red-soft); }
+  .dialog-actions .button-danger { margin-right: auto; }
 
-  .comments-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   .comment-form { display: grid; gap: 9px; margin-bottom: 18px; padding: 13px; border-radius: 9px; background: var(--blue-soft); }
   .comment-form label { display: grid; gap: 5px; }
   .comment-form label > span { color: var(--blue); font-size: 9px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
@@ -1435,8 +1456,7 @@
     .filters-panel { grid-template-columns: 1fr 1fr; }
     .workspace { grid-template-columns: 1fr; }
     .portfolio-panel { position: static; max-height: 520px; }
-    .subaction-list,
-    .comments-grid { grid-template-columns: 1fr; }
+    .subaction-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .action-header { flex-direction: column; }
     .badge-row { justify-content: flex-start; }
     .header-actions { justify-items: start; }
@@ -2088,17 +2108,21 @@
     addAction: document.getElementById("add-action-button"),
     subactionList: document.getElementById("subaction-list"),
     emptySubactions: document.getElementById("empty-subactions"),
-    subactionDetail: document.getElementById("subaction-detail"),
-    subactionDetailHeader: document.getElementById("subaction-detail-header"),
-    subactionDetailGroups: document.getElementById("subaction-detail-groups"),
-    subactionDescription: document.getElementById("subaction-description-block"),
+    subDialog: document.getElementById("subaction-dialog"),
+    subForm: document.getElementById("subaction-form"),
+    subDialogKicker: document.getElementById("subaction-dialog-kicker"),
+    subDialogTitle: document.getElementById("subaction-dialog-title"),
+    subResponsable: document.getElementById("subaction-responsable"),
+    subResponsableAutocomplete: document.getElementById("subaction-responsable-autocomplete"),
+    subResponsableAvatar: document.getElementById("subaction-responsable-avatar"),
+    subResponsableSuggestions: document.getElementById("subaction-responsable-suggestions"),
+    closeSub: document.getElementById("close-subaction"),
+    cancelSub: document.getElementById("cancel-subaction"),
+    deleteSub: document.getElementById("delete-subaction"),
+    saveSub: document.getElementById("save-subaction"),
     parentCommentCount: document.getElementById("parent-comment-count"),
     parentComments: document.getElementById("parent-comments"),
     parentCommentForm: document.getElementById("parent-comment-form"),
-    subCommentsTitle: document.getElementById("sub-comments-title"),
-    subCommentCount: document.getElementById("sub-comment-count"),
-    subComments: document.getElementById("sub-comments"),
-    subCommentForm: document.getElementById("sub-comment-form"),
     editDialog: document.getElementById("edit-dialog"),
     cascadeDialog: document.getElementById("cascade-dialog"),
     cascadeMessage: document.getElementById("cascade-message"),
@@ -2118,10 +2142,6 @@
     editEtiquettes: document.getElementById("edit-etiquettes"),
     editEtiquettesTokens: document.getElementById("edit-etiquettes-tokens"),
     editEtiquettesSuggestions: document.getElementById("edit-etiquettes-suggestions"),
-    editActionParente: document.getElementById("edit-action-parente"),
-    editActionParenteTokens: document.getElementById("edit-action-parente-tokens"),
-    editActionParenteSuggestions: document.getElementById("edit-action-parente-suggestions"),
-    editActionParenteHint: document.getElementById("edit-action-parente-hint"),
     editParties: document.getElementById("edit-parties-interessees"),
     editPartiesTokens: document.getElementById("edit-parties-interessees-tokens"),
     editPartiesSuggestions: document.getElementById("edit-parties-interessees-suggestions"),
@@ -2131,8 +2151,8 @@
 
   const state = {
     actions: [],
-    parents: [],
-    childrenByParent: new Map(),
+    sousActions: [],
+    sousActionsParAction: new Map(),
     commentsByAction: new Map(),
     actionResources: new Map(),
     agents: new Map(),
@@ -2152,15 +2172,16 @@
     mct: new Map(),
     mctDocuments: [],
     mctIdByCode: new Map(),
-    selectedParentId: null,
+    selectedActionId: null,
     editingSnapshot: null,
-    selectedSubId: null,
     requestedActionId: null,
     epingleId: null,
     historique: [],
     cursorSyncId: null,
     editingId: null,
-    creatingParentId: null,
+    creatingAction: false,
+    editingSousActionId: null,
+    sousActionSnapshot: null,
     permalinkTarget: null,
     initialized: false,
     loading: false,
@@ -2608,12 +2629,6 @@
       key: "Visibilite", query: "visibilite", label: "Visibilité", values: action => referenceListSearchValues(action.Visibilite),
       suggestions: () => state.services.flatMap(row => [row.label, reference(row.id)?.Code])
     },
-    {
-      key: "Action_parente", query: "actionparente", label: "Action parente", values: action => {
-        const parent = state.actions.find(candidate => candidate.id === Number(validScalar(action.Action_parente)));
-        return parent ? [parent.id, parent.Titre] : [];
-      }
-    },
     { key: "Date_de_creation", query: "datecreation", label: "Date de création", values: action => searchDateValues(action.Date_de_creation) },
     { key: "Prochaine_echeance", query: "prochaineecheance", label: "Prochaine échéance", values: action => searchDateValues(action.Prochaine_echeance) },
     { key: "Echeance_finale", query: "echeancefinale", label: "Échéance finale", values: action => searchDateValues(action.Echeance_finale) },
@@ -2728,8 +2743,8 @@
     return deadline >= start && deadline <= horizon;
   }
 
-  function filteredParents() {
-    if (MODE_FICHE) return state.parents;
+  function filteredActions() {
+    if (MODE_FICHE) return state.actions;
     let clauses = [];
     try {
       clauses = parseSearchQuery(elements.search.value, ACTION_SEARCH_FIELDS);
@@ -2749,27 +2764,27 @@
     const onlyMine = elements.myActionsFilter.checked;
     const visibility = elements.visibilityFilter.value;
     const tags = selectedCheckboxValues(elements.tagsFilter);
-    const visibles = state.parents.filter(parent => {
-      const candidates = [parent, ...(state.childrenByParent.get(parent.id) || [])];
-      if (status === "active" && isClosed(parent)) return false;
-      if (!new Set(["active", "all"]).has(status) && String(parent.Avancement) !== status) return false;
-      if (priority && parent.Priorite !== priority) return false;
-      if (owner && !normalize(agentLabel(parent.Responsable)).includes(owner)) return false;
-      if (!actionMatchesDeadline(parent, deadline)) return false;
-      if (onlyMine && !candidates.some(action => actionConcernsAgent(action, state.currentAgentId))) return false;
-      const visibleServices = new Set(refListIds(parent.Visibilite).map(String));
+    // « Me concernant » passe par Contributeurs_actifs : les responsables des
+    // sous-actions ouvertes y sont deja, calcules par Grist.
+    const visibles = state.actions.filter(action => {
+      if (status === "active" && isClosed(action)) return false;
+      if (!new Set(["active", "all"]).has(status) && String(action.Avancement) !== status) return false;
+      if (priority && action.Priorite !== priority) return false;
+      if (owner && !normalize(agentLabel(action.Responsable)).includes(owner)) return false;
+      if (!actionMatchesDeadline(action, deadline)) return false;
+      if (onlyMine && !actionConcernsAgent(action, state.currentAgentId)) return false;
+      const visibleServices = new Set(refListIds(action.Visibilite).map(String));
       if (visibility === "mine" && !visibleServices.has(String(currentAgentServiceId()))) return false;
       if (visibility === "all" && visibleServices.size) return false;
-      if (tags.size && !candidates.some(action =>
-        choiceValues(action.Etiquettes).some(tag => tags.has(String(tag))))) return false;
-      if (clauses.length && !candidates.some(action => matchesSearch(state.searchIndexes.get(action.id), clauses))) return false;
+      if (tags.size && !choiceValues(action.Etiquettes).some(tag => tags.has(String(tag)))) return false;
+      if (clauses.length && !matchesSearch(state.searchIndexes.get(action.id), clauses)) return false;
       return true;
     }).sort((left, right) => {
       const leftDate = Number(left.Prochaine_echeance) || Number.POSITIVE_INFINITY;
       const rightDate = Number(right.Prochaine_echeance) || Number.POSITIVE_INFINITY;
       return leftDate - rightDate || collator.compare(left.Titre || "", right.Titre || "");
     });
-    return avecEpingle(visibles, state.epingleId, state.parents);
+    return avecEpingle(visibles, state.epingleId, state.actions);
   }
 
   function actionConcernsAgent(action, agentId) {
@@ -2787,12 +2802,7 @@
   function selectionPourAction(rowId, actions) {
     const id = Number(rowId);
     if (!Number.isInteger(id) || id <= 0) return null;
-    const action = actions.find(candidate => candidate.id === id);
-    if (!action) return null;
-    const parentId = Number(validScalar(action.Action_parente));
-    if (!parentId) return { parentId: action.id, subId: null };
-    if (!actions.some(candidate => candidate.id === parentId && !validScalar(candidate.Action_parente))) return null;
-    return { parentId, subId: action.id };
+    return actions.some(candidate => candidate.id === id) ? id : null;
   }
 
   function reinitialiserFiltresPourLien() {
@@ -2827,22 +2837,20 @@
   // quand l'utilisateur change de ligne : lever les filtres sans condition
   // effacait sa selection des qu'il enregistrait une action. On ne les leve donc
   // que si l'action visee est reellement hors de vue.
-  function selectionDejaVisible(selection, selectedParentId, visibles) {
-    return selection.parentId === selectedParentId ||
-      visibles.some(parent => parent.id === selection.parentId);
+  function selectionDejaVisible(actionId, selectedActionId, visibles) {
+    return actionId === selectedActionId || visibles.some(action => action.id === actionId);
   }
 
   function appliquerActionDemandee(reveler = true) {
-    const selection = selectionPourAction(state.requestedActionId, state.actions);
-    if (!selection) return false;
-    if (!selectionDejaVisible(selection, state.selectedParentId, filteredParents())) {
+    const actionId = selectionPourAction(state.requestedActionId, state.actions);
+    if (!actionId) return false;
+    if (!selectionDejaVisible(actionId, state.selectedActionId, filteredActions())) {
       // Au premier chargement on ne sait pas distinguer un permalien du curseur
       // ambiant : plutôt que de balayer les filtres, on épingle la fiche visée.
       if (reveler) reinitialiserFiltresPourLien();
-      else state.epingleId = selection.parentId;
+      else state.epingleId = actionId;
     }
-    state.selectedParentId = selection.parentId;
-    state.selectedSubId = selection.subId;
+    state.selectedActionId = actionId;
     state.requestedActionId = null;
     return true;
   }
@@ -2889,31 +2897,10 @@
     records.forEach(record => addOption(select, record.id, record.label));
   }
 
-  // Etiquettes et action parente se choisissent a la frappe : une liste deroulante
-  // de plusieurs centaines de titres, ou un multi-select au Ctrl-clic, n'etaient
-  // pas utilisables. Meme controle a bulles que les documents du MCT.
+  // Les etiquettes se choisissent a la frappe : un multi-select au Ctrl-clic
+  // n'etait pas utilisable. Meme controle a bulles que les documents du MCT.
   function tagSource() {
     return state.tags.map(tag => ({ value: tag, label: tag }));
-  }
-
-  // Le widget n'affiche que deux niveaux : les parents possibles sont les actions
-  // principales, et une action qui porte deja des sous-actions ne peut pas etre
-  // rattachee sans creer un troisieme niveau.
-  function parentSource(input) {
-    return state.parents
-      .filter(parent => parent.id !== Number(input.pickerExcludeId))
-      .sort((left, right) => collator.compare(left.Titre || "", right.Titre || ""))
-      .map(parent => ({ value: parent.id, label: parent.Titre || "Sans titre", hint: `#${parent.id}` }));
-  }
-
-  function setParentPicker(input, actionId, parentId) {
-    input.pickerExcludeId = actionId;
-    setPickerSelection(input, elements.editActionParenteTokens, parentId ? [parentId] : []);
-    const porteDesSousActions = Boolean(state.childrenByParent.get(actionId)?.length);
-    input.disabled = porteDesSousActions;
-    elements.editActionParenteHint.textContent = porteDesSousActions
-      ? "Cette action porte déjà des sous-actions : elle ne peut pas être rattachée à une autre."
-      : "Laisser vide pour une action principale.";
   }
 
   function pickerSelection(input) {
@@ -3083,7 +3070,7 @@
   }
 
   function renderMetrics() {
-    const active = state.parents.filter(action => !isClosed(action));
+    const active = state.actions.filter(action => !isClosed(action));
     const start = today();
     const horizon = new Date(start);
     horizon.setDate(horizon.getDate() + 30);
@@ -3096,7 +3083,7 @@
       if (deadline < start) overdue += 1;
       else if (deadline <= horizon) soon += 1;
     }
-    elements.total.textContent = state.parents.length.toLocaleString("fr-FR");
+    elements.total.textContent = state.actions.length.toLocaleString("fr-FR");
     elements.active.textContent = active.length.toLocaleString("fr-FR");
     elements.soon.textContent = soon.toLocaleString("fr-FR");
     elements.overdue.textContent = overdue.toLocaleString("fr-FR");
@@ -3206,26 +3193,27 @@
     return text || "Non renseigné";
   }
 
-  function renderActionList(parents) {
+  function renderActionList(actions) {
     elements.actionList.replaceChildren();
-    elements.portfolioCount.textContent = parents.length.toLocaleString("fr-FR");
-    elements.emptyActions.hidden = parents.length > 0;
-    for (const action of parents) {
+    elements.portfolioCount.textContent = actions.length.toLocaleString("fr-FR");
+    elements.emptyActions.hidden = actions.length > 0;
+    for (const action of actions) {
       const button = make("button", "action-item");
       button.type = "button";
-      button.classList.toggle("selected", action.id === state.selectedParentId);
+      button.classList.toggle("selected", action.id === state.selectedActionId);
       button.style.setProperty("--status-color", statusColor(action));
       button.appendChild(make("span", "action-item-title", action.Titre || `Action #${action.id}`));
       const meta = make("span", "action-item-meta");
       meta.appendChild(make("span", "", metaValue(referenceLabel(action.Avancement))));
       meta.appendChild(make("span", "", metaValue(agentLabel(action.Responsable))));
       if (action.Prochaine_echeance) meta.appendChild(make("span", "", `Échéance ${formatDate(action.Prochaine_echeance)}`));
-      const childCount = state.childrenByParent.get(action.id)?.length || 0;
-      if (childCount) meta.appendChild(make("span", "", `${childCount} sous-action${childCount > 1 ? "s" : ""}`));
+      const ouvertes = sousActionsDe(action.id).filter(estOuverte).length;
+      if (ouvertes) {
+        meta.appendChild(make("span", "", `${ouvertes} sous-action${ouvertes > 1 ? "s" : ""} ouverte${ouvertes > 1 ? "s" : ""}`));
+      }
       button.appendChild(meta);
       button.addEventListener("click", () => {
-        state.selectedParentId = action.id;
-        state.selectedSubId = state.childrenByParent.get(action.id)?.[0]?.id || null;
+        state.selectedActionId = action.id;
         synchroniserCurseur(action.id);
         renderDashboard();
       });
@@ -3647,7 +3635,7 @@
     controls.appendChild(badges);
     controls.appendChild(copyRecordLinkButton(action.id));
     if (canManageActions()) {
-      const edit = make("button", "button button-secondary", kind === "Action parente" ? "Modifier l’action" : "Modifier la sous-action");
+      const edit = make("button", "button button-secondary", "Modifier l’action");
       edit.type = "button";
       edit.addEventListener("click", () => openEditor(action.id));
       controls.appendChild(edit);
@@ -3672,9 +3660,7 @@
       ["Date de fin", textValueNode(formatDate(action.Date_de_fin))],
       ["Charge estimée", textValueNode(referenceLabel(action.Estimation_charge))]
     ]));
-    const parent = state.actions.find(candidate => candidate.id === Number(validScalar(action.Action_parente)));
     groupsContainer.appendChild(infoGroup("Périmètre", [
-      ["Action parente", textValueNode(parent?.Titre)],
       ["Parties intéressées", chipValues(refListIds(action.Parties_interessees).map(agentLabel))],
       ["Documents du MCT", mctValueNode(action)],
       ["Objectif stratégique", textValueNode(action.Objectif_strategique_associe)],
@@ -3687,61 +3673,211 @@
     descriptionContainer.appendChild(make("p", "", validScalar(action.Description) || "Aucune description renseignée."));
   }
 
-  function renderSubactions(parent) {
-    const children = state.childrenByParent.get(parent.id) || [];
-    if (children.length && !children.some(child => child.id === state.selectedSubId)) state.selectedSubId = children[0].id;
-    if (!children.length) state.selectedSubId = null;
+  // --- Sous-actions -------------------------------------------------------
+  // Une sous-action tient en quatre champs et vit dans sa propre table ; sa
+  // trace va sur l'action mere, seule a avoir un historique et une equipe a
+  // notifier (regle action_modifiee).
+  const STATUTS_SOUS_ACTION = ["Ouvert", "Clos", "Abandonné"];
+  const LIBELLES_SOUS_ACTION = {
+    Description: "Description",
+    Responsable: "Responsable",
+    Statut: "Statut",
+    Echeance: "Échéance"
+  };
+
+  // Aligne sur la formule Contributeurs_actifs : seul « Ouvert » est ouvert, un
+  // statut vide (ligne saisie hors widget) compte comme clos.
+  function estOuverte(sous) {
+    return sous?.Statut === "Ouvert";
+  }
+
+  function sousActionsDe(actionId) {
+    return state.sousActionsParAction.get(Number(actionId)) || [];
+  }
+
+  // Ouvertes d'abord, puis par echeance croissante, les sans-echeance en dernier.
+  function trierSousActions(liste) {
+    const echeance = sous => Number(sous.Echeance) || Number.POSITIVE_INFINITY;
+    return [...liste].sort((left, right) =>
+      Number(estOuverte(right)) - Number(estOuverte(left)) ||
+      echeance(left) - echeance(right) ||
+      Number(left.id) - Number(right.id));
+  }
+
+  function echeanceDepassee(sous, reference = today()) {
+    const date = dateFromValue(sous?.Echeance);
+    if (!estOuverte(sous) || !date) return false;
+    date.setHours(0, 0, 0, 0);
+    return date < reference;
+  }
+
+  function sousActionColor(sous) {
+    if (sous.Statut === "Clos") return "#57BC02";
+    if (sous.Statut === "Abandonné") return "#8a99a8";
+    return echeanceDepassee(sous) ? "#EA1105" : "#4971A6";
+  }
+
+  function valeurLisibleSousAction(champ, valeur) {
+    if (champ === "Responsable") return agentLabel(valeur) || "";
+    if (champ === "Echeance") return dateInputValue(valeur);
+    return valeur === null || valeur === undefined ? "" : String(valeur);
+  }
+
+  function nomSousAction(sous) {
+    return `Sous-action « ${String(sous?.Description || "").trim() || "sans description"} »`;
+  }
+
+  // avant null = creation, apres null = suppression ; sinon une ligne par champ.
+  function lignesHistoriqueSousAction(actionId, avant, apres) {
+    const ligne = (champ, avantTexte, apresTexte) => ({
+      Action_concernee: actionId, Operation: "Modification", Champ: champ, Avant: avantTexte, Apres: apresTexte
+    });
+    if (!avant) {
+      return [ligne("Sous-action", "",
+        [apres.Description, agentLabel(apres.Responsable)].filter(Boolean).join(" — "))];
+    }
+    if (!apres) return [ligne("Sous-action", avant.Description || "", "")];
+    return Object.keys(LIBELLES_SOUS_ACTION)
+      .filter(champ => champ in apres && comparable(champ, avant[champ]) !== comparable(champ, apres[champ]))
+      .map(champ => ligne(`${nomSousAction(avant)} · ${LIBELLES_SOUS_ACTION[champ]}`,
+        valeurLisibleSousAction(champ, avant[champ]), valeurLisibleSousAction(champ, apres[champ])));
+  }
+
+  function renderSubactions(action) {
+    const liste = trierSousActions(sousActionsDe(action.id));
+    const ouvertes = liste.filter(estOuverte).length;
     elements.subactionList.replaceChildren();
-    elements.subactionCount.textContent = children.length.toLocaleString("fr-FR");
-    elements.emptySubactions.hidden = children.length > 0;
-    for (const child of children) {
-      const card = make("article", "subaction-card");
-      card.tabIndex = 0;
-      card.role = "button";
-      card.classList.toggle("selected", child.id === state.selectedSubId);
-      card.style.setProperty("--status-color", statusColor(child));
-      const top = make("div", "subaction-topline");
-      const status = pill(referenceLabel(child.Avancement), "pill-status");
-      status.style.setProperty("--status-color", statusColor(child));
-      top.appendChild(status);
-      top.appendChild(make("span", "action-kicker", `#${child.id}`));
-      card.appendChild(top);
-      card.appendChild(make("h3", "", child.Titre || `Sous-action #${child.id}`));
-      const meta = make("div", "subaction-meta");
-      meta.appendChild(make("span", "", metaValue(agentLabel(child.Responsable))));
-      meta.appendChild(make("span", "", child.Prochaine_echeance ? `Échéance ${formatDate(child.Prochaine_echeance)}` : "Sans échéance"));
-      if (child.Priorite) meta.appendChild(make("span", "", child.Priorite));
-      if (referenceLabel(child.Estimation_charge)) meta.appendChild(make("span", "", `${referenceLabel(child.Estimation_charge)} j.h`));
-      card.appendChild(meta);
-      if (validScalar(child.Description)) card.appendChild(make("p", "subaction-description", child.Description));
-      const select = () => {
-        state.selectedSubId = child.id;
-        synchroniserCurseur(child.id);
-        renderSubactions(parent);
-        renderSubactionDetail();
-        renderComments(parent);
-      };
-      card.addEventListener("click", select);
-      card.addEventListener("keydown", event => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          select();
-        }
-      });
-      elements.subactionList.appendChild(card);
+    elements.subactionCount.textContent = liste.length
+      ? `${ouvertes.toLocaleString("fr-FR")} / ${liste.length.toLocaleString("fr-FR")}`
+      : "0";
+    elements.emptySubactions.hidden = liste.length > 0;
+    for (const sous of liste) {
+      const row = make("div", "subaction-row");
+      row.classList.toggle("is-closed", !estOuverte(sous));
+      row.style.setProperty("--status-color", sousActionColor(sous));
+      const statut = pill(sous.Statut || "Sans statut", "pill-status");
+      statut.style.setProperty("--status-color", sousActionColor(sous));
+      row.appendChild(statut);
+      row.appendChild(make("span", "subaction-description", validScalar(sous.Description) || `Sous-action #${sous.id}`));
+      const agent = state.agents.get(Number(validScalar(sous.Responsable))) || null;
+      const owner = make("span", "subaction-owner");
+      if (agent) owner.appendChild(agentAvatar(agent, agent.Email));
+      owner.appendChild(make("span", "", agent?.Email || "Sans responsable"));
+      row.appendChild(owner);
+      const echeance = make("span", "subaction-deadline",
+        sous.Echeance ? `Échéance ${formatDate(sous.Echeance)}` : "Sans échéance");
+      echeance.classList.toggle("is-overdue", echeanceDepassee(sous));
+      row.appendChild(echeance);
+      if (canManageActions()) {
+        const edit = make("button", "button button-secondary button-small", "Modifier");
+        edit.type = "button";
+        edit.addEventListener("click", () => openSousActionEditor(sous.id));
+        row.appendChild(edit);
+      }
+      elements.subactionList.appendChild(row);
     }
   }
 
-  function selectedSubaction() {
-    return state.actions.find(action => action.id === state.selectedSubId) || null;
+  function openSousActionEditor(sousId = null) {
+    const action = state.actions.find(candidate => candidate.id === state.selectedActionId);
+    if (!action) return;
+    const sous = sousId ? state.sousActions.find(candidate => candidate.id === sousId) : null;
+    if (sousId && !sous) return;
+    state.editingSousActionId = sous ? sous.id : null;
+    state.sousActionSnapshot = sous;
+    const fields = elements.subForm.elements;
+    elements.subDialogKicker.textContent = sous
+      ? `SOUS-ACTION · ROW ID ${sous.id}`
+      : `NOUVELLE SOUS-ACTION · ACTION #${action.id}`;
+    elements.subDialogTitle.textContent = sous ? "Modifier la sous-action" : "Ajouter une sous-action";
+    fields.description.value = validScalar(sous?.Description) || "";
+    fields.statut.value = STATUTS_SOUS_ACTION.includes(sous?.Statut) ? sous.Statut : "Ouvert";
+    fields.echeance.value = dateInputValue(sous?.Echeance);
+    setResponsibleSelection(validScalar(sous?.Responsable), elements.subResponsable);
+    elements.subResponsableSuggestions.hidden = true;
+    elements.deleteSub.hidden = !sous;
+    elements.deleteSub.textContent = "Supprimer";
+    elements.saveSub.textContent = sous ? "Enregistrer" : "Créer la sous-action";
+    [...fields].forEach(control => control.setCustomValidity?.(""));
+    elements.subDialog.showModal();
+    fields.description.focus();
   }
 
-  function renderSubactionDetail() {
-    const child = selectedSubaction();
-    elements.subactionDetail.hidden = !child;
-    if (!child) return;
-    renderEntityHeader(child, "Sous-action", elements.subactionDetailHeader);
-    renderEntityGroups(child, elements.subactionDetailGroups, elements.subactionDescription);
+  function sousActionUpdate() {
+    const fields = elements.subForm.elements;
+    const description = fields.description.value.trim();
+    if (!description) throw new Error("La description est obligatoire.");
+    return {
+      Description: description,
+      // Reference vide = 0, jamais null.
+      Responsable: agentRef(fields.responsable, "Le responsable") || 0,
+      Statut: fields.statut.value || "Ouvert",
+      Echeance: dateToGrist(fields.echeance.value)
+    };
+  }
+
+  async function submitSousAction(event) {
+    event.preventDefault();
+    const actionId = state.selectedActionId;
+    if (state.saving || !actionId) return;
+    if (!elements.subForm.checkValidity()) {
+      elements.subForm.reportValidity();
+      return;
+    }
+    const creating = state.editingSousActionId === null;
+    let update;
+    try {
+      update = sousActionUpdate();
+    } catch (error) {
+      setNotice(`Sous-action non enregistrée : ${error?.message || error}`, true);
+      return;
+    }
+    state.saving = true;
+    elements.saveSub.disabled = true;
+    try {
+      // Sous-action et trace dans le meme lot : l'ecriture recalcule les
+      // contributeurs de l'action, donc recharge l'iframe, et un second appel
+      // mourrait sans trace (constate le 2026-08-29 sur Agents).
+      const lot = [creating
+        ? ["AddRecord", "Sous_actions", null, { ...update, Action: actionId }]
+        : ["UpdateRecord", "Sous_actions", state.editingSousActionId, update]];
+      const histo = actionHistorique(lignesHistoriqueSousAction(actionId, state.sousActionSnapshot, update));
+      if (histo) lot.push(histo);
+      await grist.docApi.applyUserActions(lot);
+      elements.subDialog.close();
+      await loadData();
+      setNotice(creating ? `Sous-action ajoutée à l’action #${actionId}.` : "Sous-action mise à jour.");
+    } catch (error) {
+      setNotice(`Sous-action non enregistrée : ${error?.message || error}`, true);
+    } finally {
+      state.saving = false;
+      elements.saveSub.disabled = false;
+    }
+  }
+
+  // confirm() n'est pas garanti dans l'iframe : le bouton demande un second clic.
+  async function supprimerSousAction() {
+    const sous = state.sousActionSnapshot;
+    if (!sous || state.saving) return;
+    if (elements.deleteSub.textContent !== "Confirmer la suppression") {
+      elements.deleteSub.textContent = "Confirmer la suppression";
+      return;
+    }
+    state.saving = true;
+    try {
+      const actionId = Number(validScalar(sous.Action)) || state.selectedActionId;
+      await grist.docApi.applyUserActions([
+        ["RemoveRecord", "Sous_actions", sous.id],
+        actionHistorique(lignesHistoriqueSousAction(actionId, sous, null))
+      ]);
+      elements.subDialog.close();
+      await loadData();
+      setNotice("Sous-action supprimée.");
+    } catch (error) {
+      setNotice(`Suppression impossible : ${error?.message || error}`, true);
+    } finally {
+      state.saving = false;
+    }
   }
 
   function initials(label) {
@@ -3829,57 +3965,40 @@
     [...form.elements].forEach(control => { control.disabled = disabled; });
   }
 
-  // Une sous-action porte ses propres lignes d'historique : la fiche de l'action
-  // parente les rassemble, en gardant trace de la ligne concernée pour ne pas
-  // les confondre.
-  function renderHistory(parent) {
+  // Les sous-actions n'ont pas d'historique propre : leurs traces sont posees
+  // sur l'action, et s'y lisent avec les siennes.
+  function renderHistory(action) {
     if (!MODE_FICHE) return;
-    const enfants = state.childrenByParent.get(parent.id) || [];
-    const titres = new Map(enfants.map(enfant => [enfant.id, enfant.Titre || `Sous-action #${enfant.id}`]));
-    renderHistorique(historiquePour(state.historique, "Action_concernee", [parent.id, ...titres.keys()]), {
+    renderHistorique(historiquePour(state.historique, "Action_concernee", [action.id]), {
       date: ligne => formatDate(ligne.Date, true),
       auteur: ligne => agentLabel(validScalar(ligne.Auteur)),
-      portee: ligne => titres.get(Number(validScalar(ligne.Action_concernee))),
       vide: "Aucune modification enregistrée pour cette action."
     });
   }
 
-  function renderComments(parent) {
-    renderCommentList(elements.parentComments, elements.parentCommentCount, meaningfulComments(parent.id), "Aucun commentaire sur cette action.");
+  function renderComments(action) {
+    renderCommentList(elements.parentComments, elements.parentCommentCount, meaningfulComments(action.id), "Aucun commentaire sur cette action.");
     setFormDisabled(elements.parentCommentForm, false);
-    const child = selectedSubaction();
-    elements.subCommentsTitle.textContent = child ? child.Titre || `Sous-action #${child.id}` : "Commentaires";
-    renderCommentList(
-      elements.subComments,
-      elements.subCommentCount,
-      child ? meaningfulComments(child.id) : [],
-      child ? "Aucun commentaire sur cette sous-action." : "Sélectionnez une sous-action pour afficher ses commentaires."
-    );
-    setFormDisabled(elements.subCommentForm, !child);
   }
 
-  function renderDetails(parent) {
+  function renderDetails(action) {
     elements.addSubaction.disabled = false;
-    renderEntityHeader(parent, "Action parente", elements.actionHeader);
-    renderEntityGroups(parent, elements.actionGroups, elements.description);
-    renderSubactions(parent);
-    renderSubactionDetail();
-    renderComments(parent);
-    renderHistory(parent);
+    renderEntityHeader(action, "Action", elements.actionHeader);
+    renderEntityGroups(action, elements.actionGroups, elements.description);
+    renderSubactions(action);
+    renderComments(action);
+    renderHistory(action);
   }
 
   function renderDashboard() {
-    const parents = filteredParents();
-    if (!parents.some(action => action.id === state.selectedParentId)) {
+    const actions = filteredActions();
+    if (!actions.some(action => action.id === state.selectedActionId)) {
       // Sur la page fiche, se rabattre sur la première action afficherait une
       // fiche que personne n'a demandée : mieux vaut l'état vide.
-      state.selectedParentId = MODE_FICHE ? null : (parents[0]?.id || null);
-      state.selectedSubId = state.selectedParentId
-        ? state.childrenByParent.get(state.selectedParentId)?.[0]?.id || null
-        : null;
+      state.selectedActionId = MODE_FICHE ? null : (actions[0]?.id || null);
     }
-    renderActionList(parents);
-    const selected = parents.find(action => action.id === state.selectedParentId);
+    renderActionList(actions);
+    const selected = actions.find(action => action.id === state.selectedActionId);
     if (selected) {
       renderDetails(selected);
     } else {
@@ -3888,12 +4007,9 @@
       elements.actionGroups.replaceChildren();
       elements.description.replaceChildren();
       elements.subactionList.replaceChildren();
-      elements.subactionDetail.hidden = true;
       elements.parentComments.replaceChildren();
-      elements.subComments.replaceChildren();
       elements.historyPanel.hidden = true;
       setFormDisabled(elements.parentCommentForm, true);
-      setFormDisabled(elements.subCommentForm, true);
     }
   }
 
@@ -3964,22 +4080,27 @@
     return button;
   }
 
-  function renderResponsibleSelection() {
-    const id = Number(elements.editResponsable.agentSelectedId);
+  // Deux champs « responsable » partagent ce composant, celui de l'action et
+  // celui de la sous-action : l'avatar et son enveloppe sont accroches a l'input.
+  function renderResponsibleSelection(input = elements.editResponsable) {
+    const id = Number(input.agentSelectedId);
     const agent = state.agents.get(id) || null;
-    elements.editResponsableAvatar.replaceChildren();
-    elements.editResponsableAvatar.hidden = !agent;
-    elements.editResponsableAutocomplete.classList.toggle("has-selection", Boolean(agent));
-    if (agent) elements.editResponsableAvatar.appendChild(agentAvatar(agent, agent.Email));
+    const avatar = input.agentAvatarNode;
+    const wrapper = input.agentWrapperNode;
+    if (!avatar || !wrapper) return;
+    avatar.replaceChildren();
+    avatar.hidden = !agent;
+    wrapper.classList.toggle("has-selection", Boolean(agent));
+    if (agent) avatar.appendChild(agentAvatar(agent, agent.Email));
   }
 
-  function setResponsibleSelection(agentId) {
+  function setResponsibleSelection(agentId, input = elements.editResponsable) {
     const id = Number(agentId);
     const agent = state.agents.get(id) || null;
-    elements.editResponsable.agentSelectedId = agent ? id : null;
-    elements.editResponsable.value = agent?.Email || "";
-    elements.editResponsable.setCustomValidity("");
-    renderResponsibleSelection();
+    input.agentSelectedId = agent ? id : null;
+    input.value = agent?.Email || "";
+    input.setCustomValidity("");
+    renderResponsibleSelection(input);
   }
 
   function renderAgentTokens(input, container) {
@@ -4018,12 +4139,14 @@
     menu.children[activeIndex]?.scrollIntoView({ block: "nearest" });
   }
 
-  function setupResponsibleAutocomplete(input, menu) {
+  function setupResponsibleAutocomplete(input, menu, avatar, wrapper) {
+    input.agentAvatarNode = avatar;
+    input.agentWrapperNode = wrapper;
     let matches = [];
     let activeIndex = -1;
 
     function choose(agent) {
-      setResponsibleSelection(agent.id);
+      setResponsibleSelection(agent.id, input);
       menu.hidden = true;
       input.setAttribute("aria-expanded", "false");
       activeIndex = -1;
@@ -4045,7 +4168,7 @@
     input.addEventListener("input", () => {
       input.agentSelectedId = null;
       input.setCustomValidity("");
-      renderResponsibleSelection();
+      renderResponsibleSelection(input);
       render();
     });
     input.addEventListener("focus", render);
@@ -4348,12 +4471,11 @@
     const action = state.actions.find(record => record.id === actionId);
     if (!action) return;
     state.editingId = actionId;
-    state.creatingParentId = null;
+    state.creatingAction = false;
     state.editingSnapshot = action;
     elements.saveEdit.textContent = "Enregistrer";
-    const child = Boolean(validScalar(action.Action_parente));
-    elements.editDialogKicker.textContent = `${child ? "SOUS-ACTION" : "ACTION PARENTE"} · ROW ID ${action.id}`;
-    elements.editDialogTitle.textContent = child ? "Modifier la sous-action" : "Modifier l’action";
+    elements.editDialogKicker.textContent = `ACTION · ROW ID ${action.id}`;
+    elements.editDialogTitle.textContent = "Modifier l’action";
     const fields = elements.editForm.elements;
     fields.titre.value = validScalar(action.Titre) || "";
     fields.description.value = validScalar(action.Description) || "";
@@ -4368,7 +4490,6 @@
     fields.prochaine_echeance.value = dateInputValue(action.Prochaine_echeance);
     fields.echeance_finale.value = dateInputValue(action.Echeance_finale);
     setPickerSelection(fields.etiquettes, elements.editEtiquettesTokens, choiceValues(action.Etiquettes));
-    setParentPicker(fields.action_parente, action.id, Number(validScalar(action.Action_parente)) || 0);
     setMctSelection(fields.mct, elements.editMctTokens, refListIds(action.Elements_du_MCT_concerne));
     setAgentSelection(fields.parties_interessees, elements.editPartiesTokens, refListIds(action.Parties_interessees));
     renderResourceEditor(action);
@@ -4388,30 +4509,21 @@
     elements.editResponsableSuggestions.hidden = true;
     elements.editMctSuggestions.hidden = true;
     elements.editPartiesSuggestions.hidden = true;
-    elements.editEtiquettesSuggestions.hidden = true;
-    elements.editActionParenteSuggestions.hidden = true;
     synchroniserCaseTerminee();
     elements.editDialog.showModal();
     fields.titre.focus();
   }
 
-  // parentId falsy => action parente. Sinon, sous-action rattachee a cette action.
-  // creatingParentId vaut alors 0, ce que Grist interprete comme une reference vide.
-  function openActionCreator(parentId) {
-    const parent = parentId
-      ? state.actions.find(record => record.id === parentId && !validScalar(record.Action_parente))
-      : null;
-    if (parentId && !parent) return;
+  function openActionCreator() {
     state.editingId = null;
     state.editingSnapshot = null;
-    state.creatingParentId = parent ? parent.id : 0;
-    elements.editDialogKicker.textContent = parent ? `NOUVELLE SOUS-ACTION · ACTION #${parent.id}` : "NOUVELLE ACTION PARENTE";
-    elements.editDialogTitle.textContent = parent ? "Ajouter une sous-action" : "Ajouter une action";
+    state.creatingAction = true;
+    elements.editDialogKicker.textContent = "NOUVELLE ACTION";
+    elements.editDialogTitle.textContent = "Ajouter une action";
     elements.editForm.reset();
     const fields = elements.editForm.elements;
     fillMultiSelect(fields.visibilite, state.services);
     setPickerSelection(fields.etiquettes, elements.editEtiquettesTokens, []);
-    setParentPicker(fields.action_parente, 0, state.creatingParentId);
     setResponsibleSelection(null);
     setMctSelection(fields.mct, elements.editMctTokens, []);
     setAgentSelection(fields.parties_interessees, elements.editPartiesTokens, []);
@@ -4427,9 +4539,8 @@
     elements.editMctSuggestions.hidden = true;
     elements.editPartiesSuggestions.hidden = true;
     elements.editEtiquettesSuggestions.hidden = true;
-    elements.editActionParenteSuggestions.hidden = true;
     synchroniserCaseTerminee();
-    elements.saveEdit.textContent = parent ? "Créer la sous-action" : "Créer l’action";
+    elements.saveEdit.textContent = "Créer l’action";
     elements.editDialog.showModal();
     fields.titre.focus();
   }
@@ -4445,12 +4556,12 @@
     return dateToGrist(localToday());
   }
 
-  // Une action terminee dont les sous-actions restent ouvertes laisse un arbre
-  // incoherent. On propose de les clore, on ne l'impose pas — et on laisse de cote
-  // celles qui sont deja closes ou abandonnees, qu'il n'y a pas lieu de rouvrir.
-  function sousActionsACloturer(enfants, avancementId) {
+  // Une action terminee dont les sous-actions restent ouvertes laisse un ecart.
+  // On propose de les clore, on ne l'impose pas — et on laisse de cote celles
+  // deja closes ou abandonnees, qu'il n'y a pas lieu de rouvrir.
+  function sousActionsACloturer(sousActions, avancementId) {
     if (!estTerminee(avancementId)) return [];
-    return (enfants || []).filter(enfant => !isClosed(enfant));
+    return (sousActions || []).filter(estOuverte);
   }
 
   // confirm() n'est pas garanti dans l'iframe du widget (allow-modals) : la
@@ -4548,7 +4659,6 @@
     Echeance_finale: "Échéance finale",
     Date_de_fin: "Date de fin",
     Etiquettes: "Étiquettes",
-    Action_parente: "Action parente",
     Elements_du_MCT_concerne: "Éléments du MCT",
     Parties_interessees: "Parties intéressées",
     Visibilite: "Visibilité"
@@ -4562,9 +4672,6 @@
     if (valeur === null || valeur === undefined || valeur === "") return "";
     if (["Avancement", "Estimation_charge", "Instance_de_pilotage"].includes(champ)) return referenceLabel(valeur) || "";
     if (champ === "Responsable") return agentLabel(valeur) || "";
-    if (champ === "Action_parente") {
-      return state.actions.find(action => action.id === Number(valeur))?.Titre || "";
-    }
     if (champ === "Etiquettes") return choiceValues(valeur).join(", ");
     if (champ === "Parties_interessees") return refListIds(valeur).map(agentLabel).filter(Boolean).join(", ");
     if (champ === "Visibilite") return refListIds(valeur).map(referenceLabel).filter(Boolean).join(", ");
@@ -4663,8 +4770,6 @@
       Date_de_fin: dateDeFinAuto(fields.avancement.value ? Number(fields.avancement.value) : null,
         state.editingSnapshot),
       Etiquettes: ["L", ...pickerValues(fields.etiquettes, "Étiquettes")],
-      // Reference vide = 0, jamais null : Grist ecrirait sinon une valeur invalide.
-      Action_parente: Number(pickerValues(fields.action_parente, "Action parente")[0]) || 0,
       Elements_du_MCT_concerne: mctRefList(fields.mct),
       Parties_interessees: agentRefList(fields.parties_interessees),
       // Vide = aucune restriction, convention retenue a l'import des plans.
@@ -4674,7 +4779,7 @@
 
   async function submitEditor(event) {
     event.preventDefault();
-    const creating = state.editingId === null && state.creatingParentId !== null;
+    const creating = state.editingId === null && state.creatingAction;
     if (state.saving || (!creating && state.editingId === null)) return;
     if (!elements.editForm.checkValidity()) {
       elements.editForm.reportValidity();
@@ -4696,9 +4801,7 @@
     // a « terminee » : une action deja close reenregistree ne la reposerait pas.
     let cascade = [];
     if (!creating && !estTerminee(state.editingSnapshot?.Avancement)) {
-      const ouvertes = sousActionsACloturer(
-        state.childrenByParent.get(state.editingId), update.Avancement
-      );
+      const ouvertes = sousActionsACloturer(sousActionsDe(state.editingId), update.Avancement);
       if (ouvertes.length && await demanderCascade(ouvertes.length)) cascade = ouvertes;
     }
 
@@ -4706,9 +4809,6 @@
     elements.saveEdit.disabled = true;
     elements.saveEdit.textContent = "Enregistrement…";
     const actionId = state.editingId;
-    // Le rattachement vient desormais du formulaire : le bouton « + Sous-action »
-    // ne fait qu'y preselectionner l'action parente.
-    const parentId = update.Action_parente;
     let actionPersisted = false;
     let savedId = actionId;
     try {
@@ -4720,41 +4820,22 @@
         const returned = result?.retValues?.[0];
         savedId = Number(typeof returned === "object" ? returned?.id : returned);
         if (!Number.isFinite(savedId)) throw new Error("Grist n’a pas renvoyé le Row ID de la ligne créée.");
-        if (parentId) {
-          state.selectedParentId = parentId;
-          state.selectedSubId = savedId;
-        } else {
-          state.selectedParentId = savedId;
-          state.selectedSubId = null;
-        }
+        state.selectedActionId = savedId;
       } else {
         // Update, cascade et historiques dans le meme lot : un rechargement
         // d'iframe apres l'ecriture ne peut plus perdre les traces, et une
         // cascade qui echoue n'ecrit plus une action sans ses sous-actions.
         const lot = [["UpdateRecord", "Actions", actionId, update]];
         if (cascade.length) {
-          lot.push(["BulkUpdateRecord", "Actions",
-            cascade.map(sous => sous.id), {
-              Avancement: cascade.map(() => update.Avancement),
-              Date_de_fin: cascade.map(sous => dateDeFinAuto(update.Avancement, sous))
-            }]);
+          lot.push(["BulkUpdateRecord", "Sous_actions", cascade.map(sous => sous.id),
+            { Statut: cascade.map(() => "Clos") }]);
         }
         const histo = actionHistorique([
           ...lignesHistorique(actionId, state.editingSnapshot, update),
-          ...cascade.flatMap(sous => lignesHistorique(sous.id, sous, {
-            Avancement: update.Avancement,
-            Date_de_fin: dateDeFinAuto(update.Avancement, sous)
-          }))
+          ...cascade.flatMap(sous => lignesHistoriqueSousAction(actionId, sous, { ...sous, Statut: "Clos" }))
         ]);
         if (histo) lot.push(histo);
         await grist.docApi.applyUserActions(lot);
-        // Un rattachement modifie deplace l'action dans l'arbre : la selection la suit,
-        // sinon le panneau se rabat sur la premiere action de la liste.
-        if (comparable("Action_parente", state.editingSnapshot?.Action_parente) !==
-            comparable("Action_parente", update.Action_parente)) {
-          state.selectedParentId = parentId || actionId;
-          state.selectedSubId = parentId ? actionId : null;
-        }
       }
       actionPersisted = true;
       if (estTerminee(update.Avancement) && (creating || !estTerminee(state.editingSnapshot?.Avancement))) {
@@ -4774,9 +4855,7 @@
         ? ` Pièces jointes : ${resources.added} ajoutée(s), ${resources.updated} modifiée(s), ${resources.removed} retirée(s).`
         : "";
       setNotice((creating
-        ? (parentId
-          ? `Sous-action #${savedId} créée et liée à l’action #${parentId}.`
-          : `Action #${savedId} créée.`)
+        ? `Action #${savedId} créée.`
         : `Action #${actionId} mise à jour.`) + cascadeNotice + resourceNotice +
         trace + traceRessources,
       Boolean(trace || traceRessources));
@@ -4794,15 +4873,15 @@
     } finally {
       state.saving = false;
       elements.saveEdit.disabled = false;
-      elements.saveEdit.textContent = creating ? (parentId ? "Créer la sous-action" : "Créer l’action") : "Enregistrer";
+      elements.saveEdit.textContent = creating ? "Créer l’action" : "Enregistrer";
     }
   }
 
-  async function submitComment(event, target) {
+  async function submitComment(event) {
     event.preventDefault();
     if (state.saving) return;
     const form = event.currentTarget;
-    const actionId = target === "parent" ? state.selectedParentId : state.selectedSubId;
+    const actionId = state.selectedActionId;
     if (!actionId) return;
     if (!form.checkValidity()) {
       form.reportValidity();
@@ -4828,7 +4907,7 @@
       if (created && !validScalar(created.Auteur)) {
         setNotice("Commentaire ajouté, mais aucun agent ne correspond à l’adresse de connexion Grist.", true);
       } else {
-        setNotice(`Commentaire ajouté à ${target === "parent" ? `l’action #${actionId}` : `la sous-action #${actionId}`}.`);
+        setNotice(`Commentaire ajouté à l’action #${actionId}.`);
       }
     } catch (error) {
       setNotice(`Commentaire impossible : ${error?.message || error}`, true);
@@ -4853,8 +4932,9 @@
     elements.refresh.disabled = true;
     setNotice("Actualisation du portefeuille…");
     try {
-      const [actions, comments, actionResources, agents, references, mct, context, columns, tables, attachments, access] = await Promise.all([
+      const [actions, sousActions, comments, actionResources, agents, references, mct, context, columns, tables, attachments, access] = await Promise.all([
         grist.docApi.fetchTable("Actions"),
+        grist.docApi.fetchTable("Sous_actions"),
         grist.docApi.fetchTable("Actions_commentaires"),
         grist.docApi.fetchTable("Actions_ressources"),
         grist.docApi.fetchTable("Agents"),
@@ -4903,16 +4983,13 @@
       // refus par les règles d'accès ne doit pas emporter le reste du chargement.
       state.historique = MODE_FICHE ? await chargerHistorique() : [];
 
-      state.parents = state.actions.filter(action => !validScalar(action.Action_parente));
-      state.childrenByParent = new Map();
-      for (const action of state.actions) {
-        const parentId = Number(validScalar(action.Action_parente));
-        if (!parentId) continue;
-        if (!state.childrenByParent.has(parentId)) state.childrenByParent.set(parentId, []);
-        state.childrenByParent.get(parentId).push(action);
-      }
-      for (const children of state.childrenByParent.values()) {
-        children.sort((left, right) => collator.compare(left.Titre || "", right.Titre || ""));
+      state.sousActions = rowsFromTable(sousActions);
+      state.sousActionsParAction = new Map();
+      for (const sous of state.sousActions) {
+        const actionId = Number(validScalar(sous.Action));
+        if (!actionId) continue;
+        if (!state.sousActionsParAction.has(actionId)) state.sousActionsParAction.set(actionId, []);
+        state.sousActionsParAction.get(actionId).push(sous);
       }
       state.searchIndexes = new Map(state.actions.map(action => [
         action.id,
@@ -5035,28 +5112,31 @@
   });
   elements.resetFilters.addEventListener("click", resetFilters);
   elements.refresh.addEventListener("click", loadData);
-  elements.addSubaction.addEventListener("click", () => openActionCreator(state.selectedParentId));
-  elements.addAction.addEventListener("click", () => openActionCreator(0));
+  elements.addSubaction.addEventListener("click", () => openSousActionEditor());
+  elements.addAction.addEventListener("click", () => openActionCreator());
   elements.editForm.addEventListener("submit", submitEditor);
   elements.editForm.elements.avancement.addEventListener("change", synchroniserCaseTerminee);
   elements.editForm.elements.terminee.addEventListener("change", terminerParLaCase);
   elements.addResource.addEventListener("click", () => addResourceEditorRow());
   elements.closeEdit.addEventListener("click", () => elements.editDialog.close());
   elements.cancelEdit.addEventListener("click", () => elements.editDialog.close());
-  elements.parentCommentForm.addEventListener("submit", event => submitComment(event, "parent"));
-  elements.subCommentForm.addEventListener("submit", event => submitComment(event, "subaction"));
+  elements.subForm.addEventListener("submit", submitSousAction);
+  elements.closeSub.addEventListener("click", () => elements.subDialog.close());
+  elements.cancelSub.addEventListener("click", () => elements.subDialog.close());
+  elements.deleteSub.addEventListener("click", supprimerSousAction);
+  elements.parentCommentForm.addEventListener("submit", submitComment);
   setupSearchAutocomplete(ACTION_SEARCH_FIELDS);
-  setupResponsibleAutocomplete(elements.editResponsable, elements.editResponsableSuggestions);
+  setupResponsibleAutocomplete(elements.editResponsable, elements.editResponsableSuggestions,
+    elements.editResponsableAvatar, elements.editResponsableAutocomplete);
+  setupResponsibleAutocomplete(elements.subResponsable, elements.subResponsableSuggestions,
+    elements.subResponsableAvatar, elements.subResponsableAutocomplete);
   setupMctAutocomplete(elements.editMct, elements.editMctSuggestions, elements.editMctTokens);
   setupTokenPicker(elements.editEtiquettes, elements.editEtiquettesSuggestions, elements.editEtiquettesTokens, tagSource);
-  setupTokenPicker(elements.editActionParente, elements.editActionParenteSuggestions,
-    elements.editActionParenteTokens, parentSource, 1);
   setupAgentListAutocomplete(elements.editParties, elements.editPartiesSuggestions, elements.editPartiesTokens);
   setupDismissibleDetails(document);
   setupSearchHelpPositioning(document, window);
   document.addEventListener("r3:capabilities-ready", renderDashboard);
   setupMentions(elements.parentCommentForm.elements.contenu, document.getElementById("parent-mention-suggestions"));
-  setupMentions(elements.subCommentForm.elements.contenu, document.getElementById("sub-mention-suggestions"));
 
   initialiserFiltresParDefaut();
   grist.ready({ requiredAccess: "full", allowSelectBy: true });
